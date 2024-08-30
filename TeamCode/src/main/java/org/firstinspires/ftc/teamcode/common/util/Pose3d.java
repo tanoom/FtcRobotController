@@ -52,4 +52,8 @@ public class Pose3d {
     public Pose2d toPose2d() {
         return new Pose2d(m_translation.toTranslation2d(), m_rotation.toRotation2d());
     }
+
+    public Transform3d toTransform3d() {
+        return new Transform3d(m_translation, m_rotation);
+    }
 }

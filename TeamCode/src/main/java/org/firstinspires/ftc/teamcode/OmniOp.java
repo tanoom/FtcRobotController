@@ -1,75 +1,42 @@
-/* Copyright (c) 2021 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+package org.firstinspires.ftc.teamcode;
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
 
+import android.util.Size;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.common.util.Pose3d;
+import org.firstinspires.ftc.teamcode.common.util.Rotation3d;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
-/*
- * This file contains an example of a Linear "OpMode".
- * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
- * The names of OpModes appear on the menu of the FTC Driver Station.
- * When a selection is made from the menu, the corresponding OpMode is executed.
- *
- * This particular OpMode illustrates driving a 4-motor Omni-Directional (or Holonomic) robot.
- * This code will work with either a Mecanum-Drive or an X-Drive train.
- * Both of these drives are illustrated at https://gm0.org/en/latest/docs/robot-design/drivetrains/holonomic.html
- * Note that a Mecanum drive must display an X roller-pattern when viewed from above.
- *
- * Also note that it is critical to set the correct rotation direction for each motor.  See details below.
- *
- * Holonomic drives provide the ability for the robot to move in three axes (directions) simultaneously.
- * Each motion axis is controlled by one Joystick axis.
- *
- * 1) Axial:    Driving forward and backward               Left-joystick Forward/Backward
- * 2) Lateral:  Strafing right and left                     Left-joystick Right and Left
- * 3) Yaw:      Rotating Clockwise and counter clockwise    Right-joystick Right and Left
- *
- * This code is written assuming that the right-side motors need to be reversed for the robot to drive forward.
- * When you first test your robot, if it moves backward when you push the left stick forward, then you must flip
- * the direction of all 4 motors (see code below).
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
- */
+import java.util.List;
 
-@TeleOp(name="Basic: Omni Linear OpMode", group="Linear OpMode")
-public class BasicOmniOpMode_Linear extends LinearOpMode {
+import global.first.FeedingTheFutureGameDatabase;
+
+@TeleOp(name="OmniOp for WebCam", group="Linear OpMode")
+public class OmniOp extends LinearOpMode {
+
+    private TelemetryPacket packet = new TelemetryPacket();
+    private VisionPortal visionPortal;
+    private AprilTagProcessor aprilTag;
+    private final String webCamName = "WebCamFGC";
+
+    private final Pose3d cameraPoseOnRobot = new Pose3d();
+    private final FtcDashboard ftcDashboard = FtcDashboard.getInstance();
 
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
@@ -81,8 +48,70 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
     private double angleOffset = 0;
     private boolean isFieldRelative = true;
 
+    public void startCamera(){
+        aprilTag = new AprilTagProcessor.Builder()
+                .setTagLibrary(FeedingTheFutureGameDatabase.getFeedingTheFutureTagLibrary())
+                .setOutputUnits(DistanceUnit.CM, AngleUnit.DEGREES)
+                .build();
+
+        visionPortal = new VisionPortal.Builder()
+                .setCamera(hardwareMap.get(WebcamName.class, webCamName))
+                .setCameraResolution(new Size(640, 480))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .enableLiveView(true)
+                .addProcessor(aprilTag)
+                .build();
+        visionPortal.setProcessorEnabled(aprilTag, true);
+
+        ftcDashboard.startCameraStream(visionPortal, 0);
+    }
+
+
+    public Pose2d getApriltagDetections() {
+        if(aprilTag != null) {
+            List<AprilTagDetection> tagList = aprilTag.getDetections();
+
+            packet.put("Tag Count", tagList.size());
+
+            for(AprilTagDetection detection : tagList) {
+                Pose3d apriltagToFieldPose = new Pose3d();
+
+                packet.put("Tag ID", detection.id);
+                VectorF vf = FeedingTheFutureGameDatabase.getFeedingTheFutureTagLibrary().lookupTag(detection.id).fieldPosition;
+                //dashboard.getTelemetry().addData("Tag FTCPose", detection.ftcPose);
+                if(detection.ftcPose != null) {
+                    Pose3d tagToCameraPose = new Pose3d(detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z,
+                            new Rotation3d( detection.ftcPose.roll,
+                                    detection.ftcPose.pitch,
+                                    detection.ftcPose.yaw));
+                    Pose3d robotToField3d = apriltagToFieldPose.transformBy(tagToCameraPose.toTransform3d().inverse())
+                            .transformBy(cameraPoseOnRobot.toTransform3d().inverse());
+                    Pose2d robotToField2d = robotToField3d.toPose2d();
+
+
+
+
+                }
+
+                if(vf != null) {
+                    packet.put("Tag PoseFieldX",vf.get(0));
+                    packet.put("Tag PoseFieldY",vf.get(1));
+                    packet.put("Tag PoseFieldZ",vf.get(2));
+                }
+
+            }
+        }
+        return new Pose2d();
+    }
+
     @Override
     public void runOpMode() {
+
+        startCamera();
+
+        packet.fieldOverlay()
+                .setFill("blue")
+                .fillRect(-20, -20, 40, 40);
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -112,10 +141,6 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-
-        // Wait for the game to start (driver presses PLAY)
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
 
         waitForStart();
         runtime.reset();
@@ -201,10 +226,16 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower);
             rightBackDrive.setPower(rightBackPower);
 
-            // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-            telemetry.update();
+            getApriltagDetections();
+            packet.put("Tag Count", 1);
+
+            ftcDashboard.sendTelemetryPacket(packet);
+
+//            // Show the elapsed game time and wheel power.
+//            telemetry.addData("Status", "Run Time: " + runtime.toString());
+//            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
+//            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+//            telemetry.update();
         }
-    }}
+    }
+}
