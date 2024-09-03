@@ -118,6 +118,7 @@ public class SuperStructure {
       frontLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
       frontLift.setPower(power);
    }
+
    private void setBackLiftPosition(int pos,double power){
       backLift.setTargetPosition(pos);
       backLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
