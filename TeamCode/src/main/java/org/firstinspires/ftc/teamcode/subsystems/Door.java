@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -24,11 +25,17 @@ public class Door extends SubsystemBase {
         backDoor.setPosition(0.7);
     }
 
-    public void openLeftDoor() {
-        frontDoorLeft.setPosition(0.7);
+    public void closeBackDoor() {
+        backDoor.setPosition(0);
     }
 
-    public void openRightDoor() {
-        frontDoorRight.setPosition(0.7);
+    public void openLeftDoor(double servoPower) {
+        frontDoorLeft.setPosition(servoPower);
+        FtcDashboard.getInstance().getTelemetry().addData("Yes", "Left is Triggered");
+    }
+
+    public void openRightDoor(double servoPower) {
+        frontDoorRight.setPosition(servoPower);
+        FtcDashboard.getInstance().getTelemetry().addData("Yes", "Right is Triggered");
     }
 }

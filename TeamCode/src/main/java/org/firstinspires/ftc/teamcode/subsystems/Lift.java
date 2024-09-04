@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Lift extends SubsystemBase {
 
-    private DcMotor mFrontSlide;
+    private DcMotorEx mFrontSlide;
     private DcMotorEx mBackSlide;
 
     private LiftState mFrontLiftState = LiftState.IDLE;
@@ -26,7 +26,7 @@ public class Lift extends SubsystemBase {
     //private final ElevatorFeedforward ff = new ElevatorFeedforward(0, 0, 0, 0);
 
     public Lift(final HardwareMap hardwareMap) {
-        mFrontSlide = hardwareMap.get(DcMotor.class, "frontSlide");
+        mFrontSlide = hardwareMap.get(DcMotorEx.class, "frontSlide");
         mBackSlide = hardwareMap.get(DcMotorEx.class, "backSlide");
 
         mFrontSlide.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -74,15 +74,19 @@ public class Lift extends SubsystemBase {
         switch (releaseLevel) {
             case ORIGIN:
                 releaseLevel = ReleaseLevel.ORIGIN;
+                packet.put("yes", "You trigger the ORIGIN");
                 return;
             case LOW:
                 releaseLevel = ReleaseLevel.ORIGIN;
+                packet.put("yes", "You trigger the LOW");
                 return;
             case MID:
                 releaseLevel = ReleaseLevel.LOW;
+                packet.put("yes", "You trigger the MID");
                 return;
             case HIGH:
                 releaseLevel = ReleaseLevel.MID;
+                packet.put("yes", "You trigger the HIGH");
         }
         //updateCurrentState();
     }
@@ -101,6 +105,8 @@ public class Lift extends SubsystemBase {
             case HIGH:
                 setHighRelease(releaseDirection);
         }
+        //TODO Need to consider whether to add this
+        setPositionMode();
     }
 
     public void setLowRelease(ReleaseDirection direction) {
@@ -171,6 +177,15 @@ public class Lift extends SubsystemBase {
         mBackSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+    public void setPower(double frontPower, double backPower) {
+        mFrontSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        mBackSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        mFrontSlide.setPower(frontPower);
+        mBackSlide.setPower(backPower);
+    }
+
+
+
     public enum LiftState{
         IDLE(0, 0),
         ORIGINAL(0, 1),
@@ -231,11 +246,11 @@ public class Lift extends SubsystemBase {
     public void periodic(){
         updateCurrentState();
 
-        mFrontSlide.setTargetPosition(mFrontLiftState.height);
-        mFrontSlide.setPower(mFrontLiftState.power);
+        //mFrontSlide.setTargetPosition(mFrontLiftState.height);
+        //mFrontSlide.setPower(mFrontLiftState.power);
 
-        mBackSlide.setTargetPosition(mBackLiftState.height);
-        mBackSlide.setPower(mBackLiftState.power);
+        //mBackSlide.setTargetPosition(mBackLiftState.height);
+        //mBackSlide.setPower(mBackLiftState.power);
 
 
         packet.put("Direction", releaseDirection);

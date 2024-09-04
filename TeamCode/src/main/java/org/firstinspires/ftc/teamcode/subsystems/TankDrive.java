@@ -9,18 +9,25 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.common.util.MathUtils;
 
 public class TankDrive extends SubsystemBase {
-    private final DcMotorEx leftDrive;
-    private final DcMotorEx rightDrive;
+    private final DcMotorEx leftDriveFront;
+    private final DcMotorEx rightDriveFront;
+    //private final DcMotorEx leftDriveBack;
+    //private final DcMotorEx rightDriveBack;
     private final DcMotorEx strafeDrive;
 
 
     public TankDrive (final HardwareMap hardwareMap) {
-        leftDrive  = hardwareMap.get(DcMotorEx.class, "left_drive");
-        rightDrive = hardwareMap.get(DcMotorEx.class, "right_drive");
+        leftDriveFront  = hardwareMap.get(DcMotorEx.class, "left_drive");
+        rightDriveFront = hardwareMap.get(DcMotorEx.class, "right_drive");
+        //leftDriveBack = hardwareMap.get(DcMotorEx.class, "left_drive_back");
+        //rightDriveBack = hardwareMap.get(DcMotorEx.class, "right_drive_back");
+
         strafeDrive = hardwareMap.get(DcMotorEx.class,"strafe_drive");
 
-        leftDrive.setDirection(DcMotorEx.Direction.REVERSE);
-        rightDrive.setDirection(DcMotorEx.Direction.FORWARD);
+        leftDriveFront.setDirection(DcMotorEx.Direction.REVERSE);
+        //leftDriveBack.setDirection(DcMotorEx.Direction.REVERSE);
+        rightDriveFront.setDirection(DcMotorEx.Direction.FORWARD);
+        //rightDriveBack.setDirection(DcMotorEx.Direction.FORWARD);
         strafeDrive.setDirection(DcMotorEx.Direction.FORWARD);
     }
 
@@ -34,8 +41,10 @@ public class TankDrive extends SubsystemBase {
         rightPower = Range.clip(rightPower, -1, 1);
 
         // Send powers to the wheels.
-        leftDrive.setPower(leftPower);
-        rightDrive.setPower(rightPower);
+        leftDriveFront.setPower(leftPower);
+        //leftDriveBack.setPower(leftPower);
+        rightDriveFront.setPower(rightPower);
+        //rightDriveBack.setPower(rightPower);
     }
 
 
