@@ -27,6 +27,8 @@ public class TankDrive extends SubsystemBase {
         leftDriveFront.setDirection(DcMotorEx.Direction.REVERSE);
         //leftDriveBack.setDirection(DcMotorEx.Direction.REVERSE);
         rightDriveFront.setDirection(DcMotorEx.Direction.FORWARD);
+        leftDriveFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDriveFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //rightDriveBack.setDirection(DcMotorEx.Direction.FORWARD);
         strafeDrive.setDirection(DcMotorEx.Direction.FORWARD);
     }

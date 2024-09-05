@@ -16,15 +16,18 @@ public class ServoTest extends LinearOpMode {
     private final Telemetry telemetry_M = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     public static boolean read_only = false;
     public static boolean reverse = false;
-    public static double servo_pos1 = 0.5;
+    public static double servo_pos1 = 0;
 
-    public static String servo_name1 = "strafe";
+    public static String servo_name1 = "doorBack";
+    public static String servo_name2 = "doorLeft";
     private Servo servo0 = null;
+    private Servo servo1 = null;
 
     @Override
     public void runOpMode() {
 
         servo0 = hardwareMap.get(Servo.class, servo_name1);
+        servo1 = hardwareMap.get(Servo.class, servo_name2);
         if (reverse){
             servo0.setDirection(Servo.Direction.REVERSE);
         }
@@ -32,8 +35,9 @@ public class ServoTest extends LinearOpMode {
         while (opModeIsActive()) {
             if (!read_only) {
                 servo0.setPosition(servo_pos1);
+                //servo1.setPosition(servo_pos1);
 //                servo1.setPosition(servo_pos2);
-                telemetry_M.addData("leftFront", servo0.getPosition());
+                telemetry_M.addData("doorBack", servo0.getPosition());
 //                telemetry_M.addData("rightfront", servo1.getPosition());
                 telemetry_M.update();
             }

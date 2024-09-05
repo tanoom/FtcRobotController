@@ -5,26 +5,37 @@ import com.qualcomm.robotcore.robocol.Command;
 
 import org.firstinspires.ftc.teamcode.subsystems.TankDrive;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class TankDriveCommand extends CommandBase {
     private final TankDrive tankDrive;
     private final DoubleSupplier driveSupplier;
     private final DoubleSupplier turnSupplier;
+    private final BooleanSupplier isSlowMode;
 
-    public TankDriveCommand(TankDrive tankDrive, DoubleSupplier drive, DoubleSupplier turn) {
-        this.tankDrive = tankDrive;
-        this.driveSupplier = drive;
-        this.turnSupplier = turn;
+    public TankDriveCommand(TankDrive tank, DoubleSupplier drive,
+                            DoubleSupplier turn, BooleanSupplier slow) {
+        tankDrive = tank;
+        driveSupplier = drive;
+        turnSupplier = turn;
+        isSlowMode = slow;
 
         addRequirements(tankDrive);
     }
 
     @Override
     public void execute() {
+        double drivePower = driveSupplier.getAsDouble();
+        double turnPower = turnSupplier.getAsDouble();
+
+        if(isSlowMode.getAsBoolean()) {
+            drivePower = drivePower * 0.3;
+        }
+
         tankDrive.moveRobot(
-                driveSupplier.getAsDouble(),
-                turnSupplier.getAsDouble()
+                drivePower,
+                turnPower * 0.4
         );
     }
 }

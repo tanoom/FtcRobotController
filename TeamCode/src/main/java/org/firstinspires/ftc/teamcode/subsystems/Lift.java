@@ -180,8 +180,14 @@ public class Lift extends SubsystemBase {
     public void setPower(double frontPower, double backPower) {
         mFrontSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         mBackSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        mFrontSlide.setPower(frontPower);
-        mBackSlide.setPower(backPower);
+
+        if(mFrontSlide.getCurrentPosition() < 4164) {
+            mFrontSlide.setPower(frontPower);
+        }
+
+        if(mBackSlide.getCurrentPosition() < 4164) {
+            mBackSlide.setPower(backPower);
+        }
     }
 
 

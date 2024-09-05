@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.commands.LiftOpenLoopCommand;
 import org.firstinspires.ftc.teamcode.commands.TankDriveCommand;
 import org.firstinspires.ftc.teamcode.common.util.FunctionalButton;
+import org.firstinspires.ftc.teamcode.common.util.SlewRateLimiter;
 import org.firstinspires.ftc.teamcode.subsystems.Door;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.TankDrive;
@@ -20,6 +21,8 @@ import org.firstinspires.ftc.teamcode.subsystems.TankDrive;
 @TeleOp(name = "FGC 2024 CommandOP")
 public class FGC2024TeleTest extends CommandOpMode {
     private TriggerReader triggerReader;
+    private SlewRateLimiter driverLimiter;
+    private SlewRateLimiter turnLimiter;
 
     private TankDrive tankDrive;
     private Lift lift;
@@ -40,6 +43,9 @@ public class FGC2024TeleTest extends CommandOpMode {
         gamepadEx1 = new GamepadEx(gamepad1);
         gamepadEx2 = new GamepadEx(gamepad2);
 
+        driverLimiter = new SlewRateLimiter(3);
+        turnLimiter = new SlewRateLimiter(3);
+
 
         TriggerReader frontLiftUp = new TriggerReader(
                 gamepadEx1, GamepadKeys.Trigger.LEFT_TRIGGER
@@ -49,9 +55,16 @@ public class FGC2024TeleTest extends CommandOpMode {
                 gamepadEx1, GamepadKeys.Trigger.RIGHT_TRIGGER
         );
 
-        //Default Commands Binding
-        tankDrive.setDefaultCommand(new TankDriveCommand(tankDrive,
-            () -> -gamepadEx2.getLeftY(), () -> gamepadEx2.getRightX()));
+    // Default Commands Binding
+    //        tankDrive.setDefaultCommand(new TankDriveCommand(tankDrive,
+    //            () -> -gamepadEx2.getLeftY(), () -> gamepadEx2.getRightX()));
+
+    tankDrive.setDefaultCommand(
+        new TankDriveCommand(
+            tankDrive,
+            () -> -driverLimiter.calculate(gamepadEx2.getLeftY()) ,
+            () -> gamepadEx2.getRightX(),
+            () -> gamepadEx2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 ));
 
         lift.setDefaultCommand(new LiftOpenLoopCommand(
                 lift, () -> gamepadEx1.getLeftY(), () -> -gamepadEx1.getRightY()
@@ -119,6 +132,13 @@ public class FGC2024TeleTest extends CommandOpMode {
                 new InstantCommand(() -> door.closeBackDoor())
         );
 
+
+
+    }
+
+    @Override
+    public void run() {
+        CommandScheduler.getInstance().run();
 
 
     }
