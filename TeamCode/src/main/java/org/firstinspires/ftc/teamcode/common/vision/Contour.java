@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.vision;
 
-import org.firstinspires.ftc.teamcode.common.util.MathUtils;
+import org.firstinspires.ftc.teamcode.common.util.MathUtil;
 import org.opencv.core.CvType;
 import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
@@ -133,8 +133,8 @@ public class Contour implements Releasable{
 
                 RotatedRect a = Imgproc.fitEllipse(intersectMatA);
                 RotatedRect b = Imgproc.fitEllipse(intersectMatB);
-                double mA = MathUtils.toSlope(a.angle);
-                double mB = MathUtils.toSlope(b.angle);
+                double mA = MathUtil.toSlope(a.angle);
+                double mB = MathUtil.toSlope(b.angle);
                 double x0A = a.center.x;
                 double y0A = a.center.y;
                 double x0B = b.center.x;

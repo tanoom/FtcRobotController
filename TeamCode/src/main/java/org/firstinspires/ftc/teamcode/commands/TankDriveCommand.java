@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.qualcomm.robotcore.robocol.Command;
+import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.common.util.MathUtil;
 import org.firstinspires.ftc.teamcode.subsystems.TankDrive;
 
 import java.util.function.BooleanSupplier;
@@ -29,13 +31,20 @@ public class TankDriveCommand extends CommandBase {
         double drivePower = driveSupplier.getAsDouble();
         double turnPower = turnSupplier.getAsDouble();
 
+        if(MathUtil.isNear(0, drivePower, 0.001)) {
+            turnPower = turnPower * 0.2;
+        }
+        else {
+            turnPower = turnPower * 0.4;
+        }
+
         if(isSlowMode.getAsBoolean()) {
             drivePower = drivePower * 0.3;
         }
 
         tankDrive.moveRobot(
                 drivePower,
-                turnPower * 0.4
+                turnPower
         );
     }
 }

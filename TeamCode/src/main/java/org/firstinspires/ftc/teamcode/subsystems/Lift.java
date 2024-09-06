@@ -252,11 +252,11 @@ public class Lift extends SubsystemBase {
     public void periodic(){
         updateCurrentState();
 
-        //mFrontSlide.setTargetPosition(mFrontLiftState.height);
-        //mFrontSlide.setPower(mFrontLiftState.power);
-
-        //mBackSlide.setTargetPosition(mBackLiftState.height);
-        //mBackSlide.setPower(mBackLiftState.power);
+//        mFrontSlide.setTargetPosition(mFrontLiftState.height);
+//        mFrontSlide.setPower(mFrontLiftState.power);
+//
+//        mBackSlide.setTargetPosition(mBackLiftState.height);
+//        mBackSlide.setPower(mBackLiftState.power);
 
 
         packet.put("Direction", releaseDirection);

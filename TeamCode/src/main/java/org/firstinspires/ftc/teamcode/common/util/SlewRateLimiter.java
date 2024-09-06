@@ -72,7 +72,8 @@ public class SlewRateLimiter {
      */
     public void reset(double value) {
         m_prevVal = value;
-        m_prevTime = 0;
         timer.reset();
+        timer.startTime();
+        m_prevTime = timer.seconds();
     }
 }

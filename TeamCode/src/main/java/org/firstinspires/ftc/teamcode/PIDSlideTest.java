@@ -8,23 +8,25 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @TeleOp(name = "PIDSlideTest")
 @Config
 public class PIDSlideTest extends LinearOpMode {
     //private TelemetryPacket packet = new TelemetryPacket();
-    private final MultipleTelemetry mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-    private static double slideHeightTicks = 0;
+    private final Telemetry mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+    public static int slideHeightTicks = 0;
+    public static double setP = 0.1;
     private Motor mFrontSlide;
     private Motor mBackSlide;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        mFrontSlide = new Motor(hardwareMap, "frontSlide", 28, 600);
-        mBackSlide = new Motor(hardwareMap, "backSlide", 28, 6000);
+        mFrontSlide = new Motor(hardwareMap, "frontLeftLift", 28, 600);
+        mBackSlide = new Motor(hardwareMap, "frontRightLift", 28, 6000);
 
         mFrontSlide.setInverted(false);
-        mBackSlide.setInverted(true);
+        mBackSlide.setInverted(false);
 
         mFrontSlide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         mBackSlide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -32,8 +34,8 @@ public class PIDSlideTest extends LinearOpMode {
         mFrontSlide.resetEncoder();
         mBackSlide.resetEncoder();
 
-        mFrontSlide.setPositionCoefficient(0.05);
-        mBackSlide.setPositionCoefficient(0.05);
+        mFrontSlide.setPositionCoefficient(setP);
+        mBackSlide.setPositionCoefficient(setP);
 
         mFrontSlide.setPositionTolerance(10);
         mBackSlide.setPositionTolerance(10);
@@ -46,17 +48,20 @@ public class PIDSlideTest extends LinearOpMode {
             mFrontSlide.setTargetDistance(slideHeightTicks);
             mBackSlide.setTargetDistance(slideHeightTicks);
 
-            mFrontSlide.set(0);
-            mBackSlide.set(0);
 
             if(!mFrontSlide.atTargetPosition()) {
-                mFrontSlide.set(0.75);
+                mFrontSlide.set(0.3);
+            }
+            else {
+                mFrontSlide.set(0);
             }
 
             if(!mBackSlide.atTargetPosition()) {
-                mBackSlide.set(0.75);
+                mBackSlide.set(0.3);
             }
-
+            else {
+                mBackSlide.set(0);
+            }
 
             mTelemetry.addData("Fornt Slide Ticks", mFrontSlide.getCurrentPosition());
             mTelemetry.addData("Back Slide Ticks", mBackSlide.getCurrentPosition());

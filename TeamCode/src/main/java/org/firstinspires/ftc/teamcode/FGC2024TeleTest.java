@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.button.GamepadButton;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.gamepad.TriggerReader;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.LiftOpenLoopCommand;
@@ -18,22 +19,31 @@ import org.firstinspires.ftc.teamcode.subsystems.Door;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.TankDrive;
 
+import java.util.List;
+
 @TeleOp(name = "FGC 2024 CommandOP")
 public class FGC2024TeleTest extends CommandOpMode {
     private TriggerReader triggerReader;
     private SlewRateLimiter driverLimiter;
     private SlewRateLimiter turnLimiter;
 
+    private List<LynxModule> allHubs;
+
     private TankDrive tankDrive;
     private Lift lift;
     private Door door;
     private GamepadEx gamepadEx1, gamepadEx2;
+
     //private GamepadEx gamepad2;
 
 
     @Override
     public void initialize() {
         CommandScheduler.getInstance().reset();
+
+        for(LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
 
         //Subsystems Initialization
         tankDrive = new TankDrive(hardwareMap);
@@ -87,21 +97,21 @@ public class FGC2024TeleTest extends CommandOpMode {
 //                new InstantCommand(() -> lift.fallDown())
 //        );
 
-//        new FunctionalButton(() -> getDPADAngle(gamepadEx1) == 90).whenPressed(
-//                new InstantCommand(() -> lift.liftUp())
-//        );
-//
-//        new FunctionalButton(() -> getDPADAngle(gamepadEx1) == 270).whenPressed(
-//                new InstantCommand(() -> lift.fallDown())
-//        );
-//
-//        new FunctionalButton(() -> getDPADAngle(gamepadEx1) == 0).whenPressed(
-//                new InstantCommand(() -> lift.setReleaseDirection(Lift.ReleaseDirection.BACK))
-//        );
-//
-//        new FunctionalButton(() -> getDPADAngle(gamepadEx1) == 180).whenPressed(
-//                new InstantCommand(() -> lift.setReleaseDirection(Lift.ReleaseDirection.FRONT))
-//        );
+        new FunctionalButton(() -> getDPADAngle(gamepadEx1) == 90).whenPressed(
+                new InstantCommand(() -> lift.liftUp())
+        );
+
+        new FunctionalButton(() -> getDPADAngle(gamepadEx1) == 270).whenPressed(
+                new InstantCommand(() -> lift.fallDown())
+        );
+
+        new FunctionalButton(() -> getDPADAngle(gamepadEx1) == 0).whenPressed(
+                new InstantCommand(() -> lift.setReleaseDirection(Lift.ReleaseDirection.BACK))
+        );
+
+        new FunctionalButton(() -> getDPADAngle(gamepadEx1) == 180).whenPressed(
+                new InstantCommand(() -> lift.setReleaseDirection(Lift.ReleaseDirection.FRONT))
+        );
 //
 //        gamepadEx1.getGamepadButton(GamepadKeys.Button.B).whenPressed(
 //                new InstantCommand(() -> lift.stopMotor())
@@ -138,9 +148,10 @@ public class FGC2024TeleTest extends CommandOpMode {
 
     @Override
     public void run() {
+        for(LynxModule hub : allHubs) {
+            hub.clearBulkCache();
+        }
         CommandScheduler.getInstance().run();
-
-
     }
 
 
