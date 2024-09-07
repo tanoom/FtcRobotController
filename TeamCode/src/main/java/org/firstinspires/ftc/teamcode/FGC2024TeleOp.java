@@ -257,6 +257,7 @@ public class FGC2024TeleOp extends LinearOpMode
                 strafeDrive.setPower(0);
         }
             moveRobot(drive,turn);
+            XCYBoolean.bulkRead();
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
             telemetry.update();

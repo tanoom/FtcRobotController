@@ -3,11 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @TeleOp(name = "PIDSlideTest")
@@ -17,54 +16,56 @@ public class PIDSlideTest extends LinearOpMode {
     private final Telemetry mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     public static int slideHeightTicks = 0;
     public static double setP = 0.1;
-    private Motor mFrontSlide;
-    private Motor mBackSlide;
+    private Motor mFrontLeftSlide;
+    private Motor mFrontRightSlide;
+    private Motor mBackLeftSlide;
+    private Motor mBackRightSlide;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        mFrontSlide = new Motor(hardwareMap, "frontLeftLift", 28, 600);
-        mBackSlide = new Motor(hardwareMap, "frontRightLift", 28, 6000);
+        mFrontLeftSlide = new Motor(hardwareMap, "frontLeftLift", 28, 6000);
+        mFrontRightSlide = new Motor(hardwareMap, "frontRightLift", 28, 6000);
 
-        mFrontSlide.setInverted(false);
-        mBackSlide.setInverted(false);
+        mFrontLeftSlide.setInverted(false);
+        mFrontRightSlide.setInverted(false);
 
-        mFrontSlide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        mBackSlide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        mFrontLeftSlide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        mFrontRightSlide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-        mFrontSlide.resetEncoder();
-        mBackSlide.resetEncoder();
+        mFrontLeftSlide.resetEncoder();
+        mFrontRightSlide.resetEncoder();
 
-        mFrontSlide.setPositionCoefficient(setP);
-        mBackSlide.setPositionCoefficient(setP);
+        mFrontLeftSlide.setPositionCoefficient(setP);
+        mFrontRightSlide.setPositionCoefficient(setP);
 
-        mFrontSlide.setPositionTolerance(10);
-        mBackSlide.setPositionTolerance(10);
+        mFrontLeftSlide.setPositionTolerance(10);
+        mFrontRightSlide.setPositionTolerance(10);
 
-        mFrontSlide.setRunMode(Motor.RunMode.PositionControl);
-        mBackSlide.setRunMode(Motor.RunMode.PositionControl);
+        mFrontLeftSlide.setRunMode(Motor.RunMode.PositionControl);
+        mFrontRightSlide.setRunMode(Motor.RunMode.PositionControl);
 
         waitForStart();
         while (opModeIsActive()) {
-            mFrontSlide.setTargetDistance(slideHeightTicks);
-            mBackSlide.setTargetDistance(slideHeightTicks);
+            mFrontLeftSlide.setTargetDistance(slideHeightTicks);
+            mFrontRightSlide.setTargetDistance(slideHeightTicks);
 
 
-            if(!mFrontSlide.atTargetPosition()) {
-                mFrontSlide.set(0.3);
+            if(!mFrontLeftSlide.atTargetPosition()) {
+                mFrontLeftSlide.set(0.3);
             }
             else {
-                mFrontSlide.set(0);
+                mFrontLeftSlide.set(0);
             }
 
-            if(!mBackSlide.atTargetPosition()) {
-                mBackSlide.set(0.3);
+            if(!mFrontRightSlide.atTargetPosition()) {
+                mFrontRightSlide.set(0.3);
             }
             else {
-                mBackSlide.set(0);
+                mFrontRightSlide.set(0);
             }
 
-            mTelemetry.addData("Fornt Slide Ticks", mFrontSlide.getCurrentPosition());
-            mTelemetry.addData("Back Slide Ticks", mBackSlide.getCurrentPosition());
+            mTelemetry.addData("FrontLeft Slide Ticks", mFrontLeftSlide.getCurrentPosition());
+            mTelemetry.addData("FrontRight Slide Ticks", mFrontRightSlide.getCurrentPosition());
             mTelemetry.update();
         }
 

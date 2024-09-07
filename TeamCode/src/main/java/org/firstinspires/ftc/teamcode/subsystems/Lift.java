@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.controller.wpilibcontroller.ElevatorFeedforward;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -12,8 +10,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Lift extends SubsystemBase {
 
-    private DcMotorEx mFrontSlide;
-    private DcMotorEx mBackSlide;
+    private DcMotorEx mFrontLeftSlide;
+    private DcMotorEx mBackLeftSlide;
+    private DcMotorEx mFrontRightSlide;
+    private DcMotorEx mBackRightSlide;
 
     private LiftState mFrontLiftState = LiftState.IDLE;
     private LiftState mBackLiftState = LiftState.IDLE;
@@ -26,16 +26,26 @@ public class Lift extends SubsystemBase {
     //private final ElevatorFeedforward ff = new ElevatorFeedforward(0, 0, 0, 0);
 
     public Lift(final HardwareMap hardwareMap) {
-        mFrontSlide = hardwareMap.get(DcMotorEx.class, "frontSlide");
-        mBackSlide = hardwareMap.get(DcMotorEx.class, "backSlide");
+        mFrontLeftSlide = hardwareMap.get(DcMotorEx.class, "frontLeftLift");
+        mBackLeftSlide = hardwareMap.get(DcMotorEx.class, "backLeftLift");
+        mFrontRightSlide = hardwareMap.get(DcMotorEx.class, "frontRightLift");
+        mBackRightSlide = hardwareMap.get(DcMotorEx.class, "backRightLift");
 
-        mFrontSlide.setDirection(DcMotorSimple.Direction.FORWARD);
-        mBackSlide.setDirection(DcMotorSimple.Direction.REVERSE);
-        mFrontSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        mBackSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        mFrontLeftSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+        mBackLeftSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+        mFrontRightSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+        mBackRightSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        mFrontLeftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        mBackLeftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        mFrontRightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        mBackRightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         stopAndResetEncoder();
-        mFrontSlide.setTargetPosition(0);
-        mBackSlide.setTargetPosition(0);
+        mFrontLeftSlide.setTargetPosition(0);
+        mBackLeftSlide.setTargetPosition(0);
+        mFrontRightSlide.setTargetPosition(0);
+        mBackRightSlide.setTargetPosition(0);
         setPositionMode();
     }
 
@@ -168,25 +178,38 @@ public class Lift extends SubsystemBase {
     }
 
     public void setPositionMode() {
-        mFrontSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        mBackSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        mFrontLeftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        mBackLeftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        mFrontRightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        mBackRightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void stopAndResetEncoder() {
-        mFrontSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        mBackSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        mFrontLeftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        mBackLeftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        mFrontRightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        mBackRightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void setPower(double frontPower, double backPower) {
-        mFrontSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        mBackSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        mFrontLeftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        mBackLeftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        mFrontRightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        mBackRightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        if(mFrontSlide.getCurrentPosition() < 4164) {
-            mFrontSlide.setPower(frontPower);
+        if(mFrontLeftSlide.getCurrentPosition() < 1291) {
+            mFrontLeftSlide.setPower(frontPower);
         }
 
-        if(mBackSlide.getCurrentPosition() < 4164) {
-            mBackSlide.setPower(backPower);
+        if(mBackLeftSlide.getCurrentPosition() < 1291) {
+            mBackLeftSlide.setPower(backPower);
+        }
+        if(mFrontRightSlide.getCurrentPosition() < 1291) {
+            mFrontRightSlide.setPower(frontPower);
+        }
+
+        if(mBackRightSlide.getCurrentPosition() < 1291) {
+            mBackRightSlide.setPower(backPower);
         }
     }
 
@@ -195,12 +218,12 @@ public class Lift extends SubsystemBase {
     public enum LiftState{
         IDLE(0, 0),
         ORIGINAL(0, 1),
-        LOW_GOAL_LOW(1877, 1),
-        LOW_GOAL_HIGH(2988, 1),
-        MID_GOAL_LOW(2634, 1),
-        MID_GOAL_HIGH(3726, 1),
-        HIGH_GOAL_LOW(3200, 1),
-        HIGH_GOAL_HIGH(4164, 1);
+        LOW_GOAL_LOW(469, 1),
+        LOW_GOAL_HIGH(747, 1),
+        MID_GOAL_LOW(659, 1),
+        MID_GOAL_HIGH(931, 1),
+        HIGH_GOAL_LOW(800, 1),
+        HIGH_GOAL_HIGH(1291, 1);
 
         private final int height;
         private final int power;
