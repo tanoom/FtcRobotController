@@ -3,17 +3,17 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Lift extends SubsystemBase {
-
-    private DcMotorEx mFrontLeftSlide;
-    private DcMotorEx mBackLeftSlide;
-    private DcMotorEx mFrontRightSlide;
-    private DcMotorEx mBackRightSlide;
+    private Motor mFrontLeftSlide;
+    private Motor mBackLeftSlide;
+    private Motor mFrontRightSlide;
+    private Motor mBackRightSlide;
 
     private LiftState mFrontLiftState = LiftState.IDLE;
     private LiftState mBackLiftState = LiftState.IDLE;
@@ -23,30 +23,42 @@ public class Lift extends SubsystemBase {
 
     private TelemetryPacket packet = new TelemetryPacket();
 
+    private final double slideKp = 0.1;
+    private final double positionTolerance = 10;
+
     //private final ElevatorFeedforward ff = new ElevatorFeedforward(0, 0, 0, 0);
 
     public Lift(final HardwareMap hardwareMap) {
-        mFrontLeftSlide = hardwareMap.get(DcMotorEx.class, "frontLeftLift");
-        mBackLeftSlide = hardwareMap.get(DcMotorEx.class, "backLeftLift");
-        mFrontRightSlide = hardwareMap.get(DcMotorEx.class, "frontRightLift");
-        mBackRightSlide = hardwareMap.get(DcMotorEx.class, "backRightLift");
+    mFrontLeftSlide = new Motor(hardwareMap, "frontLeftLift", 28, 6000);
+        mBackLeftSlide = new Motor(hardwareMap, "backLeftLift", 28, 6000);
+        mFrontRightSlide = new Motor(hardwareMap, "frontRightLift", 28, 6000);
+        mBackRightSlide = new Motor(hardwareMap, "backRightLift", 28, 6000);
 
-        mFrontLeftSlide.setDirection(DcMotorSimple.Direction.FORWARD);
-        mBackLeftSlide.setDirection(DcMotorSimple.Direction.FORWARD);
-        mFrontRightSlide.setDirection(DcMotorSimple.Direction.FORWARD);
-        mBackRightSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+        mFrontLeftSlide.setInverted(false);
+        mBackLeftSlide.setInverted(false);
+        mFrontRightSlide.setInverted(false);
+        mBackRightSlide.setInverted(true);
 
-        mFrontLeftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        mBackLeftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        mFrontRightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        mBackRightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        mFrontLeftSlide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        mBackLeftSlide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        mFrontRightSlide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        mBackRightSlide.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+
+        mFrontLeftSlide.setPositionCoefficient(slideKp);
+        mBackLeftSlide.setPositionCoefficient(slideKp);
+        mFrontRightSlide.setPositionCoefficient(slideKp);
+        mBackRightSlide.setPositionCoefficient(slideKp);
+
+        mFrontLeftSlide.setPositionTolerance(positionTolerance);
+        mBackLeftSlide.setPositionCoefficient(positionTolerance);
+        mFrontRightSlide.setPositionCoefficient(positionTolerance);
+        mBackRightSlide.setPositionCoefficient(positionTolerance);
 
         stopAndResetEncoder();
-        mFrontLeftSlide.setTargetPosition(0);
-        mBackLeftSlide.setTargetPosition(0);
-        mFrontRightSlide.setTargetPosition(0);
-        mBackRightSlide.setTargetPosition(0);
-        setPositionMode();
+        mFrontLeftSlide.setTargetDistance(0);
+        mBackLeftSlide.setTargetDistance(0);
+        mFrontRightSlide.setTargetDistance(0);
+        mBackRightSlide.setTargetDistance(0);
     }
 
     public void setReleaseDirection(ReleaseDirection direction) {
@@ -56,7 +68,7 @@ public class Lift extends SubsystemBase {
 
     public void setReleaseLevel(ReleaseLevel level) {
         releaseLevel = level;
-        updateCurrentState();
+        //updateCurrentState();
     }
 
     public void liftUp() {
@@ -178,56 +190,87 @@ public class Lift extends SubsystemBase {
     }
 
     public void setPositionMode() {
-        mFrontLeftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        mBackLeftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        mFrontRightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        mBackRightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        mFrontLeftSlide.setRunMode(Motor.RunMode.PositionControl);
+        mBackLeftSlide.setRunMode(Motor.RunMode.PositionControl);
+        mFrontRightSlide.setRunMode(Motor.RunMode.PositionControl);
+        mBackRightSlide.setRunMode(Motor.RunMode.PositionControl);
     }
 
     public void stopAndResetEncoder() {
-        mFrontLeftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        mBackLeftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        mFrontRightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        mBackRightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        mFrontLeftSlide.stopAndResetEncoder();
+        mBackLeftSlide.stopAndResetEncoder();
+        mFrontRightSlide.stopAndResetEncoder();
+        mBackRightSlide.stopAndResetEncoder();
     }
 
     public void setPower(double frontPower, double backPower) {
-        mFrontLeftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        mBackLeftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        mFrontRightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        mBackRightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        mFrontLeftSlide.setRunMode(Motor.RunMode.RawPower);
+        mBackLeftSlide.setRunMode(Motor.RunMode.RawPower);
+        mFrontRightSlide.setRunMode(Motor.RunMode.RawPower);
+        mBackRightSlide.setRunMode(Motor.RunMode.RawPower);
 
         if(mFrontLeftSlide.getCurrentPosition() < 1291) {
-            mFrontLeftSlide.setPower(frontPower);
+            mFrontLeftSlide.set(frontPower);
         }
 
         if(mBackLeftSlide.getCurrentPosition() < 1291) {
-            mBackLeftSlide.setPower(backPower);
+            mBackLeftSlide.set(backPower);
         }
         if(mFrontRightSlide.getCurrentPosition() < 1291) {
-            mFrontRightSlide.setPower(frontPower);
+            mFrontRightSlide.set(frontPower);
         }
 
         if(mBackRightSlide.getCurrentPosition() < 1291) {
-            mBackRightSlide.setPower(backPower);
+            mBackRightSlide.set(backPower);
         }
     }
 
+    public void setFrontLiftsPosPower(double power) {
+        if(!mFrontLeftSlide.atTargetPosition()) {
+            mFrontLeftSlide.set(power);
+            mFrontRightSlide.set(power);
+        }
+        else {
+            mFrontLeftSlide.set(0);
+            mFrontRightSlide.set(0);
+        }
+    }
+
+    public void setBackLiftsPosPower(double power) {
+        if(!mBackLeftSlide.atTargetPosition()) {
+            mBackLeftSlide.set(power);
+            mBackRightSlide.set(power);
+        }
+        else {
+            mBackLeftSlide.set(0);
+            mBackRightSlide.set(0);
+        }
+    }
+
+    private void setFrontLiftsDistance(double distance) {
+        mFrontLeftSlide.setTargetDistance(distance);
+        mFrontRightSlide.setTargetDistance(distance);
+    }
+
+    private void setBackLiftsDistance(double distance) {
+        mBackLeftSlide.setTargetDistance(distance);
+        mBackRightSlide.setTargetDistance(distance);
+    }
 
 
     public enum LiftState{
         IDLE(0, 0),
-        ORIGINAL(0, 1),
-        LOW_GOAL_LOW(469, 1),
-        LOW_GOAL_HIGH(747, 1),
-        MID_GOAL_LOW(659, 1),
-        MID_GOAL_HIGH(931, 1),
-        HIGH_GOAL_LOW(800, 1),
-        HIGH_GOAL_HIGH(1291, 1);
+        ORIGINAL(0, 0.3),
+        LOW_GOAL_LOW(469, 0.3),
+        LOW_GOAL_HIGH(747, 0.3),
+        MID_GOAL_LOW(659, 0.3),
+        MID_GOAL_HIGH(931, 0.3),
+        HIGH_GOAL_LOW(800, 0.3),
+        HIGH_GOAL_HIGH(1291, 0.3);
 
-        private final int height;
-        private final int power;
-        private LiftState(int height, int power) {
+        private final double height;
+        private final double power;
+        private LiftState(double height, double power) {
             this.height = height;
             this.power = power;
         }
@@ -271,16 +314,16 @@ public class Lift extends SubsystemBase {
         }
     }
 
+
     @Override
     public void periodic(){
         updateCurrentState();
 
-//        mFrontSlide.setTargetPosition(mFrontLiftState.height);
-//        mFrontSlide.setPower(mFrontLiftState.power);
-//
-//        mBackSlide.setTargetPosition(mBackLiftState.height);
-//        mBackSlide.setPower(mBackLiftState.power);
+        setFrontLiftsDistance(mFrontLiftState.height);
+        setBackLiftsDistance(mBackLiftState.height);
 
+        setFrontLiftsPosPower(mFrontLiftState.power);
+        setBackLiftsPosPower(mBackLiftState.power);
 
         packet.put("Direction", releaseDirection);
         packet.put("Level", releaseLevel);
