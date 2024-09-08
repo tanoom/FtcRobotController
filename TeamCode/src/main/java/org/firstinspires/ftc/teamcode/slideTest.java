@@ -39,6 +39,12 @@ public class slideTest extends LinearOpMode {
         backLeftLift_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRightLift_Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        frontLeftLift_Motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightLift_Motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftLift_Motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightLift_Motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
         waitForStart();
         
         if (reset) {

@@ -13,7 +13,7 @@ public class TankDrive extends SubsystemBase {
     private final DcMotorEx rightDriveFront;
     //private final DcMotorEx leftDriveBack;
     //private final DcMotorEx rightDriveBack;
-    private final DcMotorEx strafeDrive;
+    //private final DcMotorEx strafeDrive;
 
 
     public TankDrive (final HardwareMap hardwareMap) {
@@ -22,7 +22,7 @@ public class TankDrive extends SubsystemBase {
         //leftDriveBack = hardwareMap.get(DcMotorEx.class, "left_drive_back");
         //rightDriveBack = hardwareMap.get(DcMotorEx.class, "right_drive_back");
 
-        strafeDrive = hardwareMap.get(DcMotorEx.class,"strafe_drive");
+        //strafeDrive = hardwareMap.get(DcMotorEx.class,"strafe_drive");
 
         leftDriveFront.setDirection(DcMotorEx.Direction.REVERSE);
         //leftDriveBack.setDirection(DcMotorEx.Direction.REVERSE);
@@ -30,7 +30,7 @@ public class TankDrive extends SubsystemBase {
         leftDriveFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightDriveFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //rightDriveBack.setDirection(DcMotorEx.Direction.FORWARD);
-        strafeDrive.setDirection(DcMotorEx.Direction.FORWARD);
+        //strafeDrive.setDirection(DcMotorEx.Direction.FORWARD);
     }
 
     public void moveRobot(double x, double yaw) {

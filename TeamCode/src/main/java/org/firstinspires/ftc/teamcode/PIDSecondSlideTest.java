@@ -16,19 +16,20 @@ public class PIDSecondSlideTest extends LinearOpMode {
   private final MultipleTelemetry mTelemetry =
       new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
   private static double slideHeightTicks = 0;
-  private DcMotorEx mFrontSlide;
-  private DcMotorEx mBackSlide;
+  private DcMotorEx mIntakeLeft;
+  private DcMotorEx mInakeRight;
 
   @Override
   public void runOpMode() throws InterruptedException {
-    mFrontSlide = hardwareMap.get(DcMotorEx.class, "frontSlide");
-    mBackSlide = hardwareMap.get(DcMotorEx.class, "backSlide");
+    mIntakeLeft = hardwareMap.get(DcMotorEx.class, "intakeLeft");
+    mInakeRight = hardwareMap.get(DcMotorEx.class, "intakeRight");
 
-    mFrontSlide.setDirection(DcMotorSimple.Direction.FORWARD);
-    mBackSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+    mIntakeLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+    mInakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-    mFrontSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    mBackSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    mIntakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    mInakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
     //        mFrontSlide.resetEncoder();
     //        mBackSlide.resetEncoder();
@@ -44,23 +45,33 @@ public class PIDSecondSlideTest extends LinearOpMode {
 
     waitForStart();
     while (opModeIsActive()) {
-      //            mFrontSlide.setTargetDistance(slideHeightTicks);
-      //            mBackSlide.setTargetDistance(slideHeightTicks);
-      //
-      //            mFrontSlide.set(0);
-      //            mBackSlide.set(0);
-      //
-      //            if(!mFrontSlide.atTargetPosition()) {
-      //                mFrontSlide.set(0.75);
-      //            }
-      //
-      //            if(!mBackSlide.atTargetPosition()) {
-      //                mBackSlide.set(0.75);
-      //            }
 
-      mTelemetry.addData("Fornt Slide Ticks", mFrontSlide.getCurrentPosition());
-      mTelemetry.addData("Back Slide Ticks", mBackSlide.getCurrentPosition());
-      mTelemetry.update();
+      if(gamepad1.a) {
+        mIntakeLeft.setPower(1);
+        mInakeRight.setPower(1);
+      } else if (gamepad1.b) {
+        mIntakeLeft.setPower(-1);
+        mInakeRight.setPower(-1);
+      }
+      else {
+        mIntakeLeft.setPower(0);
+        mInakeRight.setPower(0);
+      }
+        //            mFrontSlide.setTargetDistance(slideHeightTicks);
+        //            mBackSlide.setTargetDistance(slideHeightTicks);
+        //
+        //            mFrontSlide.set(0);
+        //            mBackSlide.set(0);
+        //
+        //            if(!mFrontSlide.atTargetPosition()) {
+        //                mFrontSlide.set(0.75);
+        //            }
+        //
+        //            if(!mBackSlide.atTargetPosition()) {
+        //                mBackSlide.set(0.75);
+        //            }
+
+        mTelemetry.update();
     }
   }
 }

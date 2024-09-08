@@ -6,17 +6,20 @@ import com.qualcomm.robotcore.robocol.Command;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.TankDrive;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class LiftOpenLoopCommand extends CommandBase {
     private final Lift lift;
     private final DoubleSupplier frontSupplier;
     private final DoubleSupplier backSupplier;
+    private final BooleanSupplier isUpperMagPressed;
 
-    public LiftOpenLoopCommand(Lift lift, DoubleSupplier front, DoubleSupplier back) {
+    public LiftOpenLoopCommand(Lift lift, DoubleSupplier front, DoubleSupplier back, BooleanSupplier upperMagPressed) {
         this.lift = lift;
         this.frontSupplier = front;
         this.backSupplier = back;
+        isUpperMagPressed = upperMagPressed;
 
         addRequirements(lift);
     }

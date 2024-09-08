@@ -212,16 +212,29 @@ public class Lift extends SubsystemBase {
         if(mFrontLeftSlide.getCurrentPosition() < 1291) {
             mFrontLeftSlide.set(frontPower);
         }
+        else {
+            mFrontLeftSlide.set(0);
+        }
 
         if(mBackLeftSlide.getCurrentPosition() < 1291) {
             mBackLeftSlide.set(backPower);
         }
+        else {
+            mBackLeftSlide.set(0);
+        }
+
         if(mFrontRightSlide.getCurrentPosition() < 1291) {
             mFrontRightSlide.set(frontPower);
+        }
+        else {
+            mFrontRightSlide.set(0);
         }
 
         if(mBackRightSlide.getCurrentPosition() < 1291) {
             mBackRightSlide.set(backPower);
+        }
+        else {
+            mBackRightSlide.set(0);
         }
     }
 
@@ -317,18 +330,23 @@ public class Lift extends SubsystemBase {
 
     @Override
     public void periodic(){
-        updateCurrentState();
-
-        setFrontLiftsDistance(mFrontLiftState.height);
-        setBackLiftsDistance(mBackLiftState.height);
-
-        setFrontLiftsPosPower(mFrontLiftState.power);
-        setBackLiftsPosPower(mBackLiftState.power);
+//        updateCurrentState();
+//
+//        setFrontLiftsDistance(mFrontLiftState.height);
+//        setBackLiftsDistance(mBackLiftState.height);
+//
+//        setFrontLiftsPosPower(mFrontLiftState.power);
+//        setBackLiftsPosPower(mBackLiftState.power);
 
         packet.put("Direction", releaseDirection);
         packet.put("Level", releaseLevel);
         packet.put("Front Height", mFrontLiftState.height);
         packet.put("Back Height", mBackLiftState.height);
+
+        packet.put("FrontLeftPos", mFrontLeftSlide.getCurrentPosition());
+        packet.put("FrontRightPos", mFrontRightSlide.getCurrentPosition());
+        packet.put("BackLeftPos", mBackLeftSlide.getCurrentPosition());
+        packet.put("BackRightPos", mBackRightSlide.getCurrentPosition());
 
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
     }

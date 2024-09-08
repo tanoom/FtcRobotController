@@ -32,10 +32,10 @@ public class TankDriveCommand extends CommandBase {
         double turnPower = turnSupplier.getAsDouble();
 
         if(MathUtil.isNear(0, drivePower, 0.001)) {
-            turnPower = turnPower * 0.2;
+            turnPower = turnPower * 0.7;
         }
         else {
-            turnPower = turnPower * 0.4;
+            turnPower = turnPower * 0.8;
         }
 
         if(isSlowMode.getAsBoolean()) {
