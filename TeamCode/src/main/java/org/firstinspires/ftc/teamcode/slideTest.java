@@ -91,6 +91,12 @@ public class slideTest extends LinearOpMode {
             telemetry_M.addData("is busy_backLeftSlide", backLeftLift_Motor.isBusy());
             telemetry_M.addData("is busy_backRightSlide", backRightLift_Motor.isBusy());
 
+            telemetry_M.addData("Power frontLeftSlide", frontLeftLift_Motor.getPower());
+            telemetry_M.addData("Power frontRightSlide", frontRightLift_Motor.getPower());
+            telemetry_M.addData("Power backLeftSlide", backLeftLift_Motor.getPower());
+            telemetry_M.addData("Power backRightSlide", backRightLift_Motor.getPower());
+
+
             telemetry_M.addData("encoder_frontLeftSlide", frontLeftLift_Motor.getCurrentPosition());
             telemetry_M.addData("encoder_frontRightSlide", frontRightLift_Motor.getCurrentPosition());
             telemetry_M.addData("encoder_backLeftSlide", backLeftLift_Motor.getCurrentPosition());

@@ -27,7 +27,7 @@ public class FGC2024TeleTest extends CommandOpMode {
     private SlewRateLimiter driverLimiter;
     private SlewRateLimiter turnLimiter;
 
-    private List<LynxModule> allHubs;
+    //private List<LynxModule> allHubs;
 
     private TankDrive tankDrive;
     private Lift lift;
@@ -41,9 +41,9 @@ public class FGC2024TeleTest extends CommandOpMode {
     public void initialize() {
         CommandScheduler.getInstance().reset();
 
-        for(LynxModule hub : allHubs) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-        }
+//        for(LynxModule hub : allHubs) {
+//            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+//        }
 
         //Subsystems Initialization
         tankDrive = new TankDrive(hardwareMap);
@@ -142,15 +142,13 @@ public class FGC2024TeleTest extends CommandOpMode {
                 new InstantCommand(() -> door.closeBackDoor())
         );
 
-
-
     }
 
     @Override
     public void run() {
-        for(LynxModule hub : allHubs) {
-            hub.clearBulkCache();
-        }
+//        for(LynxModule hub : allHubs) {
+//            hub.clearBulkCache();
+//        }
         CommandScheduler.getInstance().run();
     }
 

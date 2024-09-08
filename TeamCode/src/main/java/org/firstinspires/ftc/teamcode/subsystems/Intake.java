@@ -13,29 +13,50 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake extends SubsystemBase {
-    private DcMotorEx mInRight;
-    private DcMotorEx mInLeft;
-    private Servo take;
+    private DcMotorEx mIntakeRight;
+    private DcMotorEx mIntakeLeft;
+    private Servo mRoller; //Continuous
+    private Servo mArmLeft; //Continuous
+    private Servo mArmRight; //Continuous
+    private Servo mDoorLeft; //Position
+    private Servo mDoorRight; //Position
 
     public Intake(final HardwareMap hardwareMap) {
-        mInLeft = hardwareMap.get(DcMotorEx.class,"intakeLeft");
-        mInRight = hardwareMap.get(DcMotorEx.class,"intakeRight");
-        take = hardwareMap.get(Servo.class,"take");
+        mIntakeLeft = hardwareMap.get(DcMotorEx.class,"intakeLeft");
+        mIntakeRight = hardwareMap.get(DcMotorEx.class,"intakeRight");
+        mRoller = hardwareMap.get(Servo.class,"roller");
+        mArmLeft = hardwareMap.get(Servo.class, "armLeft");
+        mArmRight = hardwareMap.get(Servo.class, "armRight");
+        mDoorLeft = hardwareMap.get(Servo.class, "doorLeft");
+        mDoorRight = hardwareMap.get(Servo.class, "doorRight");
 
-        mInLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        mInRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        take.setDirection(Servo.Direction.FORWARD);
+        mIntakeLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        mIntakeRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        mRoller.setDirection(Servo.Direction.FORWARD);
+        mArmLeft.setDirection(Servo.Direction.FORWARD);
+        mArmRight.setDirection(Servo.Direction.FORWARD);
+        mDoorLeft.setDirection(Servo.Direction.FORWARD);
+        mDoorRight.setDirection(Servo.Direction.FORWARD);
     }
 
-    public void activateIn() {
-        mInLeft.setPower(0.8);
-        mInLeft.setPower(0.8);
-        FtcDashboard.getInstance().getTelemetry().addData("Yes", "In is triggered");
+    public void setIntakePower(double power) {
+        mIntakeLeft.setPower(power);
+        mIntakeRight.setPower(power);
     }
 
-    public void stopIntake() {
-        mInLeft.setPower(0);
-        mInLeft.setPower(0);
-        FtcDashboard.getInstance().getTelemetry().addData("Yes", "Intake is stopped");
+    public void setRollerPower(double power) {
+        mRoller.setPosition(power);
+    }
+
+    public void setArmPower(double power) {
+        mArmLeft.setPosition(power);
+        mArmRight.setPosition(power);
+    }
+
+
+
+    @Override
+    public void periodic() {
+
     }
 }
