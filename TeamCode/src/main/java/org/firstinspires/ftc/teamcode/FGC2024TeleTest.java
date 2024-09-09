@@ -54,7 +54,7 @@ public class FGC2024TeleTest extends CommandOpMode {
         gamepadEx1 = new GamepadEx(gamepad1);
         gamepadEx2 = new GamepadEx(gamepad2);
 
-        driverLimiter = new SlewRateLimiter(3);
+        driverLimiter = new SlewRateLimiter(4);
         turnLimiter = new SlewRateLimiter(3);
 
     tankDrive.setDefaultCommand(

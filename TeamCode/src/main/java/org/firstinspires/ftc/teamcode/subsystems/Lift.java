@@ -209,33 +209,10 @@ public class Lift extends SubsystemBase {
         mFrontRightSlide.setRunMode(Motor.RunMode.RawPower);
         mBackRightSlide.setRunMode(Motor.RunMode.RawPower);
 
-        if(mFrontLeftSlide.getCurrentPosition() < 1291) {
-            mFrontLeftSlide.set(frontPower);
-        }
-        else {
-            mFrontLeftSlide.set(0);
-        }
-
-        if(mBackLeftSlide.getCurrentPosition() < 1291) {
-            mBackLeftSlide.set(backPower);
-        }
-        else {
-            mBackLeftSlide.set(0);
-        }
-
-        if(mFrontRightSlide.getCurrentPosition() < 1291) {
-            mFrontRightSlide.set(frontPower);
-        }
-        else {
-            mFrontRightSlide.set(0);
-        }
-
-        if(mBackRightSlide.getCurrentPosition() < 1291) {
-            mBackRightSlide.set(backPower);
-        }
-        else {
-            mBackRightSlide.set(0);
-        }
+        mFrontLeftSlide.set(frontPower);
+        mFrontRightSlide.set(frontPower);
+        mBackLeftSlide.set(backPower);
+        mBackRightSlide.set(backPower);
     }
 
     public void setFrontLiftsPosPower(double power) {
