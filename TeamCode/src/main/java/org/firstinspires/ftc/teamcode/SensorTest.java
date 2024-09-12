@@ -28,7 +28,7 @@ public class SensorTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         //touch = hardwareMap.get(TouchSensor.class, "magneticSensor");
         //distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
-        colorSensor = hardwareMap.get(ColorSensor.class, "colorSensor");
+        colorSensor = hardwareMap.get(ColorSensor.class, "colorSensorRight");
 
         waitForStart();
         while (opModeIsActive()) {

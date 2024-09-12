@@ -81,13 +81,31 @@ public class FGC2024TeleTest extends CommandOpMode {
 
     gamepadEx2
         .getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
-        .whenPressed(new InstantCommand(() -> intake.setRollerPower(1)))
-        .whenReleased(new InstantCommand(() -> intake.setRollerPower(0.5)));
+        .whenPressed(
+                new InstantCommand(
+                        () -> {
+                            intake.setRollerPower(1);
+                        }
+                ))
+        .whenReleased(
+                new InstantCommand(
+                        () -> {
+                            intake.setRollerPower(0.5);
+                        }
+        ));
 
     gamepadEx2
             .getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON)
-            .whenPressed(new InstantCommand(() -> intake.setRollerPower(0)))
-            .whenReleased(new InstantCommand(() -> intake.setRollerPower(0.5)));
+            .whenPressed(
+                    new InstantCommand(() -> {
+                        intake.setRollerPower(0);
+                    }
+                    ))
+            .whenReleased(new InstantCommand(
+                    () -> {
+                        intake.setRollerPower(0.5);
+                    }
+            ));
 
     gamepadEx2.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(new InstantCommand(
             () -> intake.switchLeftDoorState()
@@ -97,15 +115,17 @@ public class FGC2024TeleTest extends CommandOpMode {
                 () -> intake.switchRightDoorState()
         ));
 
-    gamepadEx2
-        .getGamepadButton(GamepadKeys.Button.DPAD_UP)
-        .whenPressed(new InstantCommand(() -> intake.setIntakePower(1)))
-        .whenReleased(new InstantCommand(() -> intake.setIntakePower(0)));
+        gamepadEx1.getGamepadButton(GamepadKeys.Button.A).whenPressed(
+                new InstantCommand(() -> intake.setIntakePosition(Intake.IntakeState.STOW))
+        );
 
-        gamepadEx2
-                .getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                .whenPressed(new InstantCommand(() -> intake.setIntakePower(-1)))
-                .whenReleased(new InstantCommand(() -> intake.setIntakePower(0)));
+        gamepadEx1.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+                new InstantCommand(() -> intake.setIntakePosition(Intake.IntakeState.GRAB))
+        );
+
+        gamepadEx1.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
+                new InstantCommand(() -> intake.setIntakePosition(Intake.IntakeState.PUSH))
+        );
 
         //Buttons Binding
 

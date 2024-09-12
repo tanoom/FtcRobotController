@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -17,10 +18,13 @@ public class PIDSlideTest extends LinearOpMode {
     public static int leftSlideHeightTicks = 0;
     public static int rightSlideHeightTicks = 0;
     public static double setP = 0.1;
+    public static boolean isClosedLoop = false;
     private Motor mFrontLeftSlide;
     private Motor mFrontRightSlide;
     private Motor mBackLeftSlide;
     private Motor mBackRightSlide;
+
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -60,46 +64,68 @@ public class PIDSlideTest extends LinearOpMode {
         mBackLeftSlide.setPositionTolerance(10);
         mBackRightSlide.setPositionTolerance(10);
 
-        mFrontLeftSlide.setRunMode(Motor.RunMode.PositionControl);
-        mFrontRightSlide.setRunMode(Motor.RunMode.PositionControl);
+        if(!isClosedLoop) {
+            mFrontLeftSlide.setRunMode(Motor.RunMode.RawPower);
+            mFrontRightSlide.setRunMode(Motor.RunMode.RawPower);
 
-        mBackLeftSlide.setRunMode(Motor.RunMode.PositionControl);
-        mBackRightSlide.setRunMode(Motor.RunMode.PositionControl);
+            mBackLeftSlide.setRunMode(Motor.RunMode.RawPower);
+            mBackRightSlide.setRunMode(Motor.RunMode.RawPower);
+        }
+        else {
+            mFrontLeftSlide.setRunMode(Motor.RunMode.PositionControl);
+            mFrontRightSlide.setRunMode(Motor.RunMode.PositionControl);
+
+            mBackLeftSlide.setRunMode(Motor.RunMode.PositionControl);
+            mBackRightSlide.setRunMode(Motor.RunMode.PositionControl);
+        }
 
         waitForStart();
         while (opModeIsActive()) {
-            mFrontLeftSlide.setTargetDistance(leftSlideHeightTicks);
-            mFrontRightSlide.setTargetDistance(leftSlideHeightTicks);
+            if(isClosedLoop) {
 
-            mBackLeftSlide.setTargetDistance(rightSlideHeightTicks);
-            mBackRightSlide.setTargetDistance(rightSlideHeightTicks);
+                mFrontLeftSlide.setTargetDistance(leftSlideHeightTicks);
+                mFrontRightSlide.setTargetDistance(leftSlideHeightTicks);
 
-            if(!mFrontLeftSlide.atTargetPosition()) {
-                mFrontLeftSlide.set(0.3);
+                mBackLeftSlide.setTargetDistance(rightSlideHeightTicks);
+                mBackRightSlide.setTargetDistance(rightSlideHeightTicks);
+
+                if(!mFrontLeftSlide.atTargetPosition()) {
+                    mFrontLeftSlide.set(0.3);
+                }
+                else {
+                    mFrontLeftSlide.set(0);
+                }
+
+                if(!mFrontRightSlide.atTargetPosition()) {
+                    mFrontRightSlide.set(0.3);
+                }
+                else {
+                    mFrontRightSlide.set(0);
+                }
+
+                if(!mBackLeftSlide.atTargetPosition()) {
+                    mBackLeftSlide.set(0.3);
+                }
+                else {
+                    mBackLeftSlide.set(0);
+                }
+
+                if(!mBackRightSlide.atTargetPosition()) {
+                    mBackRightSlide.set(0.3);
+                }
+                else {
+                    mBackRightSlide.set(0);
+                }
+
+                mTelemetry.addData("TMP", "You are entering");
             }
             else {
-                mFrontLeftSlide.set(0);
-            }
 
-            if(!mFrontRightSlide.atTargetPosition()) {
-                mFrontRightSlide.set(0.3);
-            }
-            else {
-                mFrontRightSlide.set(0);
-            }
+                mFrontLeftSlide.set(-gamepad1.left_stick_y);
+                mFrontRightSlide.set(-gamepad1.left_stick_y);
 
-            if(!mBackLeftSlide.atTargetPosition()) {
-                mBackLeftSlide.set(0.3);
-            }
-            else {
-                mBackLeftSlide.set(0);
-            }
-
-            if(!mBackRightSlide.atTargetPosition()) {
-                mBackRightSlide.set(0.3);
-            }
-            else {
-                mBackRightSlide.set(0);
+                mBackLeftSlide.set(-gamepad1.right_stick_y);
+                mBackRightSlide.set(-gamepad1.right_stick_y);
             }
 
 
@@ -108,6 +134,12 @@ public class PIDSlideTest extends LinearOpMode {
             mTelemetry.addData("FrontRight Slide Ticks", mFrontRightSlide.getCurrentPosition());
             mTelemetry.addData("BackLeft Slide Ticks", mBackLeftSlide.getCurrentPosition());
             mTelemetry.addData("BackRight Slide Ticks", mBackRightSlide.getCurrentPosition());
+
+            mTelemetry.addData("Acceleration", mFrontLeftSlide.encoder.getAcceleration());
+            mTelemetry.addData("CorrectedVelocity", mFrontLeftSlide.encoder.getCorrectedVelocity());
+            mTelemetry.addData("Velocity", mFrontLeftSlide.encoder.getRawVelocity());
+
+            //mTelemetry.addData("Tick Velocity", mFrontLeftSlide.();)
             mTelemetry.update();
         }
 

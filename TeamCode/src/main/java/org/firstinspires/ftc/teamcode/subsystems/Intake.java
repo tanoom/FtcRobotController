@@ -2,27 +2,32 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.StartEndCommand;
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.hardware.ServoEx;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.controller.PIDFController;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class Intake extends SubsystemBase {
-    private DcMotorEx mIntakeRight;
-    private DcMotorEx mIntakeLeft;
+    private Motor mIntakeRight;
+    private Motor mIntakeLeft;
     private Servo mRollerLeft; //Continuous
     private Servo mRollerRight;
     private Servo mArmLeft; //Continuous
     private Servo mArmRight; //Continuous
     private Servo mDoorLeft; //Position
     private Servo mDoorRight; //Position
+
+    private PIDFController leftController = new PIDController(0.04, 0, 0);
+    private PIDFController rightController = new PIDController(0.04, 0, 0);
+
+    private ColorSensor mLeftColorSensor;
+    //private ColorSensor mRightColorSensor;
+
+    private IntakeState intakeState = IntakeState.STOW;
 
     private TouchSensor upperMag;
 
@@ -32,22 +37,30 @@ public class Intake extends SubsystemBase {
     private TelemetryPacket packet = new TelemetryPacket();
 
     public Intake(final HardwareMap hardwareMap) {
-        mIntakeLeft = hardwareMap.get(DcMotorEx.class,"intakeLeft");
-        mIntakeRight = hardwareMap.get(DcMotorEx.class,"intakeRight");
+        mIntakeLeft = new Motor(hardwareMap, "intakeLeft");
+        mIntakeRight = new Motor(hardwareMap, "intakeRight");
         mRollerLeft = hardwareMap.get(Servo.class,"rollerLeft"); // 0 1 reverse 0 outtake 1 intake
         mRollerRight = hardwareMap.get(Servo.class, "rollerRight"); //0 1 0 outtake 1 intake
         mArmLeft = hardwareMap.get(Servo.class, "armLeft"); //0 1 0 down 1 up
         mArmRight = hardwareMap.get(Servo.class, "armRight");//0 1 reverse 0 down 1 up
         mDoorLeft = hardwareMap.get(Servo.class, "doorLeft"); //0 0.3 1
         mDoorRight = hardwareMap.get(Servo.class, "doorRight"); //0 0.25 1 reverse
+        mLeftColorSensor = hardwareMap.get(ColorSensor.class, "colorSensorLeft");
+        mRightColorSensor = hardwareMap.get(ColorSensor.class, "colorSensorRight");
 
         upperMag = hardwareMap.get(TouchSensor.class, "upperMagnetic");
 
-        mIntakeLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        mIntakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        mIntakeLeft.setInverted(false);
+        mIntakeRight.setInverted(true);
 
-        mIntakeLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        mIntakeRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        mIntakeLeft.stopAndResetEncoder();
+        mIntakeRight.stopAndResetEncoder();
+
+        mIntakeLeft.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+        mIntakeRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+
+        mIntakeLeft.setRunMode(Motor.RunMode.RawPower);
+        mIntakeRight.setRunMode(Motor.RunMode.RawPower);
 
         mRollerLeft.setDirection(Servo.Direction.REVERSE);
         mRollerRight.setDirection(Servo.Direction.FORWARD);
@@ -57,11 +70,55 @@ public class Intake extends SubsystemBase {
 
         mDoorLeft.setDirection(Servo.Direction.FORWARD);
         mDoorRight.setDirection(Servo.Direction.REVERSE);
+
+        mLeftColorSensor.enableLed(true);
+        //mRightColorSensor.enableLed(true);
+
+        resetController();
+        setIntakePosition(IntakeState.STOW);
     }
 
     public void setIntakePower(double power) {
-        mIntakeLeft.setPower(power);
-        mIntakeRight.setPower(power);
+        mIntakeLeft.set(power);
+        mIntakeRight.set(power);
+    }
+
+    public void resetController() {
+        leftController.reset();
+        rightController.reset();
+    }
+
+    public void setIntakePosition(IntakeState intakeState) {
+        this.intakeState = intakeState;
+        leftController.setSetPoint(intakeState.position);
+        rightController.setSetPoint(intakeState.position);
+    }
+
+    public void moveIntakeToPosition() {
+
+        boolean leftColorBallDetected = mLeftColorSensor.red() >= 1000
+                || mLeftColorSensor.green() >= 1000
+                || mLeftColorSensor.blue() >= 1000;
+//        boolean rightColorBallDetected = mRightColorSensor.red() >= 1000
+//                || mRightColorSensor.green() >= 1000
+//                || mRightColorSensor.blue() >= 1000;
+
+        if((leftColorBallDetected) && intakeState == IntakeState.PUSH)
+            setIntakePosition(IntakeState.GRAB);
+
+        if(!leftController.atSetPoint()) {
+            mIntakeLeft.set(leftController.calculate(mIntakeLeft.encoder.getDistance()));
+        }
+        else {
+            mIntakeLeft.set(0);
+        }
+
+        if(!rightController.atSetPoint()) {
+            mIntakeRight.set(rightController.calculate(mIntakeRight.encoder.getDistance()));
+        }
+        else {
+            mIntakeRight.set(0);
+        }
     }
 
     public void setRollerPower(double power) {
@@ -122,12 +179,29 @@ public class Intake extends SubsystemBase {
         OPEN, CLOSE;
     }
 
+    public enum IntakeState{
+        STOW(3),
+        PUSH(100),
+        GRAB(165);
+        private final double position;
+        IntakeState(double position) {
+            this.position = position;
+        }
+    }
+
 
 
 
     @Override
     public void periodic() {
+        moveIntakeToPosition();
+
         packet.put("Is Upper Trigger", upperMag.isPressed());
+        packet.put("Color Red", mLeftColorSensor.red());
+        packet.put("Color Blue", mLeftColorSensor.blue());
+        packet.put("Color Green", mLeftColorSensor.green());
+        packet.put("Left Setpoint", leftController.getSetPoint());
+        packet.put("Right Setpoint", rightController.getSetPoint());
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
     }
 }
