@@ -36,7 +36,7 @@ public class Intake extends SubsystemBase {
 
     private final ElapsedTime timer = new ElapsedTime();
 
-    private ArmState armState = ArmState.IDLE;
+    private ArmState armState = ArmState.RISING;
     private final TouchSensor upperMag;
     private final TouchSensor lowerMag;
 
@@ -50,6 +50,7 @@ public class Intake extends SubsystemBase {
     private TelemetryPacket packet = new TelemetryPacket();
 
     public Intake(final HardwareMap hardwareMap) {
+
         mIntakeLeft = new Motor(hardwareMap, "intakeLeft");
         mIntakeRight = new Motor(hardwareMap, "intakeRight");
         mRollerLeft = hardwareMap.get(Servo.class,"rollerLeft"); // 0 1 reverse 0 outtake 1 intake
@@ -85,7 +86,7 @@ public class Intake extends SubsystemBase {
         mArmLeft.setPosition(0.5);
         mArmRight.setPosition(0.5);
 
-        mDoorLeft.setDirection(Servo.Direction.FORWARD);
+        mDoorLeft.setDirection(Servo.Direction.REVERSE);
         mDoorRight.setDirection(Servo.Direction.REVERSE);
 
         mLeftColorSensor.enableLed(true);
@@ -115,7 +116,6 @@ public class Intake extends SubsystemBase {
     }
 
     public void moveIntakeToPosition() {
-
         boolean leftColorBallDetected = mLeftColorSensor.red() >= 200
                 || mLeftColorSensor.green() >= 200
                 || mLeftColorSensor.blue() >= 200;
@@ -134,27 +134,8 @@ public class Intake extends SubsystemBase {
 
         if(!(leftColorBallDetected || rightColorBallDetected)) isBallCaught = false;
 
-
-//        if(!leftController.atSetPoint()) {
-            mIntakeLeft.set(leftController.calculate(mIntakeLeft.encoder.getDistance()));
-            //if(timer.)timer.startTime();
-//        }
-//        else {
-//            mIntakeLeft.set(0);
-//        }
-
-
-//        if(!rightController.atSetPoint()) {
-//        if(MathUtil.isNear(0.5, timer.seconds(), 0.01)) {
-//            mIntakeRight.set(rightController.calculate(mIntakeRight.encoder.getDistance()));
-//            timer.reset();
-//        }
+        mIntakeLeft.set(leftController.calculate(mIntakeLeft.encoder.getDistance()));
         mIntakeRight.set(rightController.calculate(mIntakeRight.encoder.getDistance()));
-
-//        }
-//        else {
-//            mIntakeRight.set(0);
-//        }
     }
 
     public void setRollerPower(double power) {
@@ -220,45 +201,51 @@ public class Intake extends SubsystemBase {
     public void switchLeftDoorState() {
         switch (mLeftDoorState){
             case OPEN:
-                mDoorLeft.setPosition(1);
                 mLeftDoorState = DoorState.CLOSE;
+                mDoorLeft.setPosition(0.75);
                 break;
             case CLOSE:
-                mDoorLeft.setPosition(0.3);
                 mLeftDoorState = DoorState.OPEN;
+                mDoorLeft.setPosition(0.45);
         }
     }
 
     public void switchRightDoorState() {
         switch (mRightDoorState){
             case OPEN:
-                mDoorRight.setPosition(1);
                 mRightDoorState = DoorState.CLOSE;
+                mDoorRight.setPosition(0.4);
                 break;
             case CLOSE:
-                mDoorRight.setPosition(0.25);
                 mRightDoorState = DoorState.OPEN;
+                mDoorRight.setPosition(0.7);
         }
     }
 
     public void initializeIntakeSystem() {
         if(!hasStarted) {
-            riseArm();
-//            mDoorLeft.setPosition(1);
-//            mDoorRight.setPosition(1);
-//            mLeftDoorState = DoorState.CLOSE;
-//            mRightDoorState = DoorState.CLOSE;
+            mDoorLeft.setPosition(0.75);
+            mDoorRight.setPosition(0.4);
             hasStarted = true;
         }
     }
-
 
     public enum ArmState {
         RISING, FALLING, IDLE;
     }
 
+
     public enum DoorState {
-        OPEN, CLOSE;
+        IDLE(0.22, 0.95),
+        OPEN(0.45, 0.7),
+        CLOSE(0.75, 0.4);
+
+        private final double leftPosition;
+        private final double rightPosition;
+        DoorState(double leftPosition, double rightPosition) {
+            this.leftPosition = leftPosition;
+            this.rightPosition = rightPosition;
+        }
     }
 
     public enum IntakeState{
@@ -292,7 +279,7 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        //initializeIntakeSystem();
+        initializeIntakeSystem();
         moveArmPosition();
         moveIntakeToPosition();
 

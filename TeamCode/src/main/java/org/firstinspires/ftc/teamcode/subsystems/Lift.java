@@ -25,6 +25,7 @@ public class Lift extends SubsystemBase {
 
     private final double slideKp = 0.1;
     private final double positionTolerance = 10;
+    private final boolean shouldLimitHeight = true;
 
     //private final ElevatorFeedforward ff = new ElevatorFeedforward(0, 0, 0, 0);
 
@@ -209,10 +210,35 @@ public class Lift extends SubsystemBase {
         mFrontRightSlide.setRunMode(Motor.RunMode.RawPower);
         mBackRightSlide.setRunMode(Motor.RunMode.RawPower);
 
-        mFrontLeftSlide.set(frontPower);
-        mFrontRightSlide.set(frontPower);
-        mBackLeftSlide.set(backPower);
-        mBackRightSlide.set(backPower);
+
+        if(frontPower <= 0) {
+            mFrontLeftSlide.set(frontPower);
+            mFrontRightSlide.set(frontPower);
+        }
+        else {
+            if(mFrontLeftSlide.getDistance() < 3870 && mFrontRightSlide.getDistance() < 3870
+                    && mFrontLeftSlide.getDistance() > -200 && mFrontRightSlide.getDistance() > -200
+                    && shouldLimitHeight){
+                mFrontLeftSlide.set(frontPower);
+                mFrontRightSlide.set(frontPower);
+            }
+        }
+
+
+        if(backPower <= 0) {
+            mBackLeftSlide.set(backPower);
+            mBackRightSlide.set(backPower);
+        }
+        else {
+            if(mBackLeftSlide.getDistance() < 4120 && mBackRightSlide.getDistance() < 4120
+                    && mBackLeftSlide.getDistance() > -200 && mBackRightSlide.getDistance() > -200
+                    && shouldLimitHeight) {
+                mBackLeftSlide.set(backPower);
+                mBackRightSlide.set(backPower);
+            }
+        }
+
+
     }
 
     public void setFrontLiftsPosPower(double power) {

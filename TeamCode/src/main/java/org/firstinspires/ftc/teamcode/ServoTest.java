@@ -19,11 +19,10 @@ public class ServoTest extends LinearOpMode {
     public static boolean reverse = true;
     public static double servo_pos1 = 1;
 
-    public static String servo_name1 = "armRight";
-    public static String servo_name2 = "armLeft";
+    public static String servo_name1 = "doorLeft";
+    public static String servo_name2 = "doorRight";
     private Servo servo0 = null;
     private Servo servo1 = null;
-    private TouchSensor upperMagnetic;
 
     private boolean prevVal = false;
     private boolean shouldStop = false;
@@ -32,17 +31,17 @@ public class ServoTest extends LinearOpMode {
     public void runOpMode() {
 
         servo0 = hardwareMap.get(Servo.class, servo_name1);
-        servo1 = hardwareMap.get(Servo.class, servo_name2);
-        upperMagnetic = hardwareMap.get(TouchSensor.class, "upperMagnetic");
+        //servo1 = hardwareMap.get(Servo.class, servo_name2);
+        //upperMagnetic = hardwareMap.get(TouchSensor.class, "upperMagnetic");
         if (reverse){
             servo0.setDirection(Servo.Direction.REVERSE);
         }
         waitForStart();
         while (opModeIsActive()) {
 
-            if (!read_only && !upperMagnetic.isPressed()) {
+            if (!read_only) {
                 servo0.setPosition(servo_pos1);
-                servo1.setPosition(servo_pos1);
+                //servo1.setPosition(servo_pos1);
                 //servo1.setPosition(servo_pos1);
 //                servo1.setPosition(servo_pos2);
                 telemetry_M.addData(servo_name1, servo0.getPosition());
@@ -51,10 +50,10 @@ public class ServoTest extends LinearOpMode {
             }
             else {
                 servo0.setPosition(0.5);
-                servo1.setPosition(0.5);
+                //servo1.setPosition(0.5);
             }
 
-            telemetry_M.addData("Magnetic Triggered", upperMagnetic.isPressed());
+            //telemetry_M.addData("Magnetic Triggered", upperMagnetic.isPressed());
             telemetry_M.update();
         }
     }

@@ -29,7 +29,7 @@ public class TankDriveCommand extends CommandBase {
     @Override
     public void execute() {
         double drivePower = driveSupplier.getAsDouble();
-        double turnPower = turnSupplier.getAsDouble();
+        double turnPower = turnSupplier.getAsDouble() * 0.8;
 
 //        if(MathUtil.isNear(0, drivePower, 0.001)) {
 //            turnPower = turnPower * 0.7;
@@ -39,7 +39,7 @@ public class TankDriveCommand extends CommandBase {
 //        }
 
         if(isSlowMode.getAsBoolean()) {
-            drivePower = drivePower * 0.3;
+            drivePower = drivePower * 0.4;
         }
 
         tankDrive.moveRobot(
