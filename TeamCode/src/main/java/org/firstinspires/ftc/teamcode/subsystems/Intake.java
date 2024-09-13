@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.text.method.Touch;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.command.SubsystemBase;
@@ -10,26 +12,37 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.common.util.MathUtil;
 
 public class Intake extends SubsystemBase {
-    private Motor mIntakeRight;
-    private Motor mIntakeLeft;
-    private Servo mRollerLeft; //Continuous
-    private Servo mRollerRight;
-    private Servo mArmLeft; //Continuous
-    private Servo mArmRight; //Continuous
-    private Servo mDoorLeft; //Position
-    private Servo mDoorRight; //Position
+    private final Motor mIntakeRight;
+    private final Motor mIntakeLeft;
+    private final Servo mRollerLeft; //Continuous
+    private final Servo mRollerRight;
+    private final Servo mArmLeft; //Continuous
+    private final Servo mArmRight; //Continuous
+    private final Servo mDoorLeft; //Position
+    private final Servo mDoorRight; //Position
 
-    private PIDFController leftController = new PIDController(0.04, 0, 0);
-    private PIDFController rightController = new PIDController(0.04, 0, 0);
+    private final PIDFController leftController = new PIDController(0.01, 0, 0);
+    private final PIDFController rightController = new PIDController(0.01, 0, 0);
 
-    private ColorSensor mLeftColorSensor;
-    //private ColorSensor mRightColorSensor;
+    private final ColorSensor mLeftColorSensor;
+    private final ColorSensor mRightColorSensor;
 
     private IntakeState intakeState = IntakeState.STOW;
 
-    private TouchSensor upperMag;
+    private final ElapsedTime timer = new ElapsedTime();
+
+    private ArmState armState = ArmState.IDLE;
+    private final TouchSensor upperMag;
+    private final TouchSensor lowerMag;
+
+    private boolean isBallCaught = false;
+    private boolean hasStarted = false;
+    private boolean isRised = false;
 
     private DoorState mLeftDoorState = DoorState.CLOSE;
     private DoorState mRightDoorState = DoorState.CLOSE;
@@ -49,9 +62,10 @@ public class Intake extends SubsystemBase {
         mRightColorSensor = hardwareMap.get(ColorSensor.class, "colorSensorRight");
 
         upperMag = hardwareMap.get(TouchSensor.class, "upperMagnetic");
+        lowerMag = hardwareMap.get(TouchSensor.class, "lowerMagnetic");
 
-        mIntakeLeft.setInverted(false);
-        mIntakeRight.setInverted(true);
+        mIntakeLeft.setInverted(true);
+        mIntakeRight.setInverted(false);
 
         mIntakeLeft.stopAndResetEncoder();
         mIntakeRight.stopAndResetEncoder();
@@ -68,11 +82,17 @@ public class Intake extends SubsystemBase {
         mArmLeft.setDirection(Servo.Direction.FORWARD);
         mArmRight.setDirection(Servo.Direction.REVERSE);
 
+        mArmLeft.setPosition(0.5);
+        mArmRight.setPosition(0.5);
+
         mDoorLeft.setDirection(Servo.Direction.FORWARD);
         mDoorRight.setDirection(Servo.Direction.REVERSE);
 
         mLeftColorSensor.enableLed(true);
-        //mRightColorSensor.enableLed(true);
+        mRightColorSensor.enableLed(true);
+
+        leftController.setTolerance(2);
+        rightController.setTolerance(2);
 
         resetController();
         setIntakePosition(IntakeState.STOW);
@@ -90,35 +110,51 @@ public class Intake extends SubsystemBase {
 
     public void setIntakePosition(IntakeState intakeState) {
         this.intakeState = intakeState;
-        leftController.setSetPoint(intakeState.position);
-        rightController.setSetPoint(intakeState.position);
+        leftController.setSetPoint(intakeState.leftPosition);
+        rightController.setSetPoint(intakeState.rightPosition);
     }
 
     public void moveIntakeToPosition() {
 
-        boolean leftColorBallDetected = mLeftColorSensor.red() >= 1000
-                || mLeftColorSensor.green() >= 1000
-                || mLeftColorSensor.blue() >= 1000;
-//        boolean rightColorBallDetected = mRightColorSensor.red() >= 1000
-//                || mRightColorSensor.green() >= 1000
-//                || mRightColorSensor.blue() >= 1000;
+        boolean leftColorBallDetected = mLeftColorSensor.red() >= 200
+                || mLeftColorSensor.green() >= 200
+                || mLeftColorSensor.blue() >= 200;
 
-        if((leftColorBallDetected) && intakeState == IntakeState.PUSH)
+        boolean rightColorBallDetected = mRightColorSensor.red() >= 200
+                || mRightColorSensor.green() >= 200
+                || mRightColorSensor.blue() >= 200;
+
+        if((leftColorBallDetected || rightColorBallDetected)
+                && intakeState == IntakeState.PUSH
+                && !isBallCaught
+        ) {
             setIntakePosition(IntakeState.GRAB);
+            isBallCaught = true;
+        }
 
-        if(!leftController.atSetPoint()) {
+        if(!(leftColorBallDetected || rightColorBallDetected)) isBallCaught = false;
+
+
+//        if(!leftController.atSetPoint()) {
             mIntakeLeft.set(leftController.calculate(mIntakeLeft.encoder.getDistance()));
-        }
-        else {
-            mIntakeLeft.set(0);
-        }
+            //if(timer.)timer.startTime();
+//        }
+//        else {
+//            mIntakeLeft.set(0);
+//        }
 
-        if(!rightController.atSetPoint()) {
-            mIntakeRight.set(rightController.calculate(mIntakeRight.encoder.getDistance()));
-        }
-        else {
-            mIntakeRight.set(0);
-        }
+
+//        if(!rightController.atSetPoint()) {
+//        if(MathUtil.isNear(0.5, timer.seconds(), 0.01)) {
+//            mIntakeRight.set(rightController.calculate(mIntakeRight.encoder.getDistance()));
+//            timer.reset();
+//        }
+        mIntakeRight.set(rightController.calculate(mIntakeRight.encoder.getDistance()));
+
+//        }
+//        else {
+//            mIntakeRight.set(0);
+//        }
     }
 
     public void setRollerPower(double power) {
@@ -131,16 +167,51 @@ public class Intake extends SubsystemBase {
         mArmRight.setPosition(power);
     }
 
+    public void setArmState(ArmState armState) {
+        this.armState = armState;
+    }
+
+    public void moveArmPosition() {
+        switch (armState) {
+            case IDLE:
+                mArmLeft.setPosition(0.5);
+                mArmRight.setPosition(0.5);
+                break;
+            case RISING:
+                riseArm();
+                break;
+            case FALLING:
+                stowArm();
+                break;
+        }
+    }
+
     public void riseArm() {
+        //armState = ArmState.RISED;
         if(!upperMag.isPressed()) {
-            mArmLeft.setPosition(0.8);
-            mArmRight.setPosition(0.8);
+            mArmLeft.setPosition(1);
+            mArmRight.setPosition(1);
         }
         else {
             mArmLeft.setPosition(0.5);
             mArmRight.setPosition(0.5);
+            isRised = true;
+            armState = ArmState.IDLE;
         }
     }
+
+    public void stowArm() {
+        if(!lowerMag.isPressed() && isRised) {
+            mArmLeft.setPosition(-0.6);
+            mArmRight.setPosition(-0.6);
+        }
+        else {
+            mArmLeft.setPosition(0.5);
+            mArmRight.setPosition(0.5);
+            armState = ArmState.IDLE;
+        }
+    }
+
 
     public boolean getUpperMagPressed() {
         return upperMag.isPressed();
@@ -170,9 +241,20 @@ public class Intake extends SubsystemBase {
         }
     }
 
+    public void initializeIntakeSystem() {
+        if(!hasStarted) {
+            riseArm();
+//            mDoorLeft.setPosition(1);
+//            mDoorRight.setPosition(1);
+//            mLeftDoorState = DoorState.CLOSE;
+//            mRightDoorState = DoorState.CLOSE;
+            hasStarted = true;
+        }
+    }
+
 
     public enum ArmState {
-        RISING, FALLING, HOLDING;
+        RISING, FALLING, IDLE;
     }
 
     public enum DoorState {
@@ -180,12 +262,28 @@ public class Intake extends SubsystemBase {
     }
 
     public enum IntakeState{
-        STOW(3),
-        PUSH(100),
-        GRAB(165);
-        private final double position;
-        IntakeState(double position) {
-            this.position = position;
+        STOW(1, 1),
+        PUSH(100, 100),
+        GRAB(40, 45);
+        private final double leftPosition;
+        private final double rightPosition;
+        IntakeState(double leftPosition, double rightPosition) {
+            this.rightPosition = rightPosition;
+            this.leftPosition = leftPosition;
+        }
+
+        @Override
+        public String toString() {
+            switch (this) {
+                case GRAB:
+                    return "GRAB";
+                case PUSH:
+                    return "PUSH";
+                case STOW:
+                    return "STOW";
+                default:
+                    return "";
+            }
         }
     }
 
@@ -194,12 +292,13 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
+        //initializeIntakeSystem();
+        moveArmPosition();
         moveIntakeToPosition();
 
         packet.put("Is Upper Trigger", upperMag.isPressed());
-        packet.put("Color Red", mLeftColorSensor.red());
-        packet.put("Color Blue", mLeftColorSensor.blue());
-        packet.put("Color Green", mLeftColorSensor.green());
+        packet.put("Intake State", intakeState.toString());
+        packet.put("Has ball", isBallCaught);
         packet.put("Left Setpoint", leftController.getSetPoint());
         packet.put("Right Setpoint", rightController.getSetPoint());
         FtcDashboard.getInstance().sendTelemetryPacket(packet);

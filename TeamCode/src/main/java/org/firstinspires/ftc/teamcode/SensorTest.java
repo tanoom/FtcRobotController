@@ -20,7 +20,9 @@ public class SensorTest extends LinearOpMode {
     //private DistanceSensor distanceSensor;
     private Telemetry mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     private TelemetryPacket packet = new TelemetryPacket();
-    private ColorSensor colorSensor; //Either of the color is greater than 1000, then it is on the intake position
+   // private  colorSensor; //Either of the color is greater than 1000, then it is on the intake position
+    private TouchSensor upperMag;
+    private TouchSensor lowerMag;
 
 
 
@@ -28,13 +30,14 @@ public class SensorTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         //touch = hardwareMap.get(TouchSensor.class, "magneticSensor");
         //distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
-        colorSensor = hardwareMap.get(ColorSensor.class, "colorSensorRight");
+        //colorSensor = hardwareMap.get(ColorSensor.class, "colorSensorRight");
+        upperMag = hardwareMap.get(TouchSensor.class, "upperMagnetic");
+        lowerMag = hardwareMap.get(TouchSensor.class, "lowerMagnetic");
 
         waitForStart();
         while (opModeIsActive()) {
-            mTelemetry.addData("Red Value", colorSensor.red());
-            mTelemetry.addData("Green Value", colorSensor.green());
-            mTelemetry.addData("Blue Value", colorSensor.blue());
+            mTelemetry.addData("Upper Trigger", upperMag.isPressed());
+            mTelemetry.addData("Lower Trigger", lowerMag.isPressed());
 //            mTelemetry.addData("Is Magnetic Triggerd", touch.isPressed());
 //            mTelemetry.addData("Value of Magnetic", touch.getValue());
 //            mTelemetry.addData("Distance of Sensor", distanceSensor.getDistance(DistanceUnit.CM));

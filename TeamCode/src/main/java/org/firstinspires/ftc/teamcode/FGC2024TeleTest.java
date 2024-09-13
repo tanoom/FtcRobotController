@@ -71,13 +71,13 @@ public class FGC2024TeleTest extends CommandOpMode {
 
     gamepadEx2
         .getGamepadButton(GamepadKeys.Button.B)
-        .whenPressed(new InstantCommand(() -> intake.riseArm()))
-        .whenReleased(new InstantCommand(() -> intake.setArmPower(0.5)));
+        .whenPressed(new InstantCommand(() -> intake.setArmState(Intake.ArmState.RISING)))
+        .whenReleased(new InstantCommand(() -> intake.setArmState(Intake.ArmState.IDLE)));
 
     gamepadEx2
         .getGamepadButton(GamepadKeys.Button.A)
-        .whenPressed(new InstantCommand(() -> intake.setArmPower(0)))
-        .whenReleased(new InstantCommand(() -> intake.setArmPower(0.5)));
+        .whenPressed(new InstantCommand(() -> intake.setArmState(Intake.ArmState.FALLING)))
+        .whenReleased(new InstantCommand(() -> intake.setArmState(Intake.ArmState.IDLE)));
 
     gamepadEx2
         .getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
@@ -126,6 +126,8 @@ public class FGC2024TeleTest extends CommandOpMode {
         gamepadEx1.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
                 new InstantCommand(() -> intake.setIntakePosition(Intake.IntakeState.PUSH))
         );
+
+
 
         //Buttons Binding
 
