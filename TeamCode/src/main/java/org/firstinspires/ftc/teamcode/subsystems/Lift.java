@@ -210,35 +210,76 @@ public class Lift extends SubsystemBase {
         mFrontRightSlide.setRunMode(Motor.RunMode.RawPower);
         mBackRightSlide.setRunMode(Motor.RunMode.RawPower);
 
+        boolean limitFrontHigh = mFrontLeftSlide.getDistance() >= 4000 || mFrontRightSlide.getDistance() >= 4000;
+        boolean limitBackHigh = mBackLeftSlide.getDistance() >= 3300 || mBackRightSlide.getDistance() >= 3300;
+        boolean limitFrontLow = mFrontLeftSlide.getDistance() <= -200 || mFrontRightSlide.getDistance() <= -200;
+        boolean limitBackLow = mBackLeftSlide.getDistance() <= -200 || mBackRightSlide.getDistance() <= -200;
 
-        if(frontPower <= 0) {
-            mFrontLeftSlide.set(frontPower);
-            mFrontRightSlide.set(frontPower);
+        packet.put("Limit Front High", limitFrontHigh);
+        packet.put("Limit Back High", limitBackHigh);
+
+        if(frontPower > 0 && limitFrontHigh)
+            setFrontSlidesPower(0);
+        else if(backPower > 0 && limitBackHigh) {
+            setBackSlidesPower(0);
+        }
+        else if(frontPower < 0 && limitFrontLow){
+            setFrontSlidesPower(0);
+        }
+        else if(backPower < 0 && limitBackLow){
+            setBackSlidesPower(0);
         }
         else {
-            if(mFrontLeftSlide.getDistance() < 3870 && mFrontRightSlide.getDistance() < 3870
-                    && mFrontLeftSlide.getDistance() > -200 && mFrontRightSlide.getDistance() > -200
-                    && shouldLimitHeight){
-                mFrontLeftSlide.set(frontPower);
-                mFrontRightSlide.set(frontPower);
-            }
+            setFrontSlidesPower(frontPower);
+            setBackSlidesPower(backPower);
         }
 
+//        if(Math.abs(mFrontLeftSlide.getDistance() - mBackLeftSlide.getDistance()) > 1000) {
+//            return;
+//        }
+//
+//        if(frontPower <= 0) {
+//            mFrontLeftSlide.set(frontPower);
+//            mFrontRightSlide.set(frontPower);
+//        }
+//        else {
+//            if(mFrontLeftSlide.getDistance() < 3870 && mFrontRightSlide.getDistance() < 3870
+//                    && mFrontLeftSlide.getDistance() > -200 && mFrontRightSlide.getDistance() > -200
+//                    && shouldLimitHeight){
+//                mFrontLeftSlide.set(frontPower);
+//                mFrontRightSlide.set(frontPower);
+//            }
+//        }
+//
+//        if(backPower <= 0) {
+//            mBackLeftSlide.set(backPower);
+//            mBackRightSlide.set(backPower);
+//        }
+//        else {
+//            if(mBackLeftSlide.getDistance() < 4120 && mBackRightSlide.getDistance() < 4120
+//                    && mBackLeftSlide.getDistance() > -200 && mBackRightSlide.getDistance() > -200
+//                    && shouldLimitHeight) {
+//                mBackLeftSlide.set(backPower);
+//                mBackRightSlide.set(backPower);
+//            }
+//        }
+    }
 
-        if(backPower <= 0) {
-            mBackLeftSlide.set(backPower);
-            mBackRightSlide.set(backPower);
-        }
-        else {
-            if(mBackLeftSlide.getDistance() < 4120 && mBackRightSlide.getDistance() < 4120
-                    && mBackLeftSlide.getDistance() > -200 && mBackRightSlide.getDistance() > -200
-                    && shouldLimitHeight) {
-                mBackLeftSlide.set(backPower);
-                mBackRightSlide.set(backPower);
-            }
-        }
+    public void resetEncoders() {
+        mFrontLeftSlide.resetEncoder();
+        mFrontRightSlide.resetEncoder();
+        mBackLeftSlide.resetEncoder();
+        mBackRightSlide.resetEncoder();
+    }
 
+    public void setFrontSlidesPower(double frontPower) {
+        mFrontLeftSlide.set(frontPower);
+        mFrontRightSlide.set(frontPower);
+    }
 
+    public void setBackSlidesPower(double backPower) {
+        mBackLeftSlide.set(backPower);
+        mBackRightSlide.set(backPower);
     }
 
     public void setFrontLiftsPosPower(double power) {

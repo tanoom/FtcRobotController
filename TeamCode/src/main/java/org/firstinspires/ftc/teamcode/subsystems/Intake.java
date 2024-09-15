@@ -202,11 +202,11 @@ public class Intake extends SubsystemBase {
         switch (mLeftDoorState){
             case OPEN:
                 mLeftDoorState = DoorState.CLOSE;
-                mDoorLeft.setPosition(0.75);
+                mDoorLeft.setPosition(0.7);
                 break;
             case CLOSE:
                 mLeftDoorState = DoorState.OPEN;
-                mDoorLeft.setPosition(0.45);
+                mDoorLeft.setPosition(0.3);
         }
     }
 
@@ -218,13 +218,13 @@ public class Intake extends SubsystemBase {
                 break;
             case CLOSE:
                 mRightDoorState = DoorState.OPEN;
-                mDoorRight.setPosition(0.7);
+                mDoorRight.setPosition(0.8);
         }
     }
 
     public void initializeIntakeSystem() {
         if(!hasStarted) {
-            mDoorLeft.setPosition(0.75);
+            mDoorLeft.setPosition(0.7);
             mDoorRight.setPosition(0.4);
             hasStarted = true;
         }
@@ -237,8 +237,8 @@ public class Intake extends SubsystemBase {
 
     public enum DoorState {
         IDLE(0.22, 0.95),
-        OPEN(0.45, 0.7),
-        CLOSE(0.75, 0.4);
+        OPEN(0.3, 0.8),
+        CLOSE(0.70, 0.4);
 
         private final double leftPosition;
         private final double rightPosition;

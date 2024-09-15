@@ -13,4 +13,28 @@ public class MathUtil {
         return Math.abs(expected - actual) < tolerance;
     }
 
+    /**
+     * Perform linear interpolation between two values.
+     *
+     * @param startValue The value to start at.
+     * @param endValue The value to end at.
+     * @param t How far between the two values to interpolate. This is clamped to [0, 1].
+     * @return The interpolated value.
+     */
+    public static double interpolate(double startValue, double endValue, double t) {
+        return startValue + (endValue - startValue) * MathUtil.clamp(t, 0, 1);
+    }
+
+    /**
+     * Returns value clamped between low and high boundaries.
+     *
+     * @param value Value to clamp.
+     * @param low The lower boundary to which to clamp value.
+     * @param high The higher boundary to which to clamp value.
+     * @return The clamped value.
+     */
+    public static double clamp(double value, double low, double high) {
+        return Math.max(low, Math.min(value, high));
+    }
+
 }

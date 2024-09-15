@@ -40,6 +40,7 @@ public class TankDriveCommand extends CommandBase {
 
         if(isSlowMode.getAsBoolean()) {
             drivePower = drivePower * 0.4;
+            turnPower = turnPower * 0.8;
         }
 
         tankDrive.moveRobot(
