@@ -26,7 +26,7 @@ public class Intake extends SubsystemBase {
     private final Servo mDoorLeft; //Position
     private final Servo mDoorRight; //Position
 
-    private final PIDFController leftController = new PIDController(0.01, 0, 0);
+    private final PIDFController leftController = new PIDController(0.015, 0, 0);
     private final PIDFController rightController = new PIDController(0.01, 0, 0);
 
     private final ColorSensor mLeftColorSensor;
@@ -53,12 +53,16 @@ public class Intake extends SubsystemBase {
 
         mIntakeLeft = new Motor(hardwareMap, "intakeLeft");
         mIntakeRight = new Motor(hardwareMap, "intakeRight");
+
         mRollerLeft = hardwareMap.get(Servo.class,"rollerLeft"); // 0 1 reverse 0 outtake 1 intake
         mRollerRight = hardwareMap.get(Servo.class, "rollerRight"); //0 1 0 outtake 1 intake
+
         mArmLeft = hardwareMap.get(Servo.class, "armLeft"); //0 1 0 down 1 up
         mArmRight = hardwareMap.get(Servo.class, "armRight");//0 1 reverse 0 down 1 up
+
         mDoorLeft = hardwareMap.get(Servo.class, "doorLeft"); //0 0.3 1
         mDoorRight = hardwareMap.get(Servo.class, "doorRight"); //0 0.25 1 reverse
+
         mLeftColorSensor = hardwareMap.get(ColorSensor.class, "colorSensorLeft");
         mRightColorSensor = hardwareMap.get(ColorSensor.class, "colorSensorRight");
 
