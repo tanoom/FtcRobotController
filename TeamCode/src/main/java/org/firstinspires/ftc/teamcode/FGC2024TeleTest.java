@@ -116,16 +116,16 @@ public class FGC2024TeleTest extends CommandOpMode {
         ));
 
         gamepadEx1.getGamepadButton(GamepadKeys.Button.A).whenPressed(
-                new InstantCommand(() -> intake.setIntakePosition(Intake.IntakeState.STOW))
+                new InstantCommand(() -> intake.switchIntakeState())
         );
 
-        gamepadEx1.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-                new InstantCommand(() -> intake.setIntakePosition(Intake.IntakeState.GRAB))
-        );
-
-        gamepadEx1.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
-                new InstantCommand(() -> intake.setIntakePosition(Intake.IntakeState.PUSH))
-        );
+//        gamepadEx1.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+//                new InstantCommand(() -> intake.setIntakePosition(Intake.IntakeState.GRAB))
+//        );
+//
+//        gamepadEx1.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
+//                new InstantCommand(() -> intake.setIntakePosition(Intake.IntakeState.PUSH))
+//        );
 
         gamepadEx2.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
                 new InstantCommand(() -> lift.resetEncoders())
