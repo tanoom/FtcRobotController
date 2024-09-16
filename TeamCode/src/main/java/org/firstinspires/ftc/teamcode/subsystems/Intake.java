@@ -108,6 +108,7 @@ public class Intake extends SubsystemBase {
         mIntakeRight.set(power);
     }
 
+
     public void resetController() {
         leftController.reset();
         rightController.reset();
@@ -254,8 +255,8 @@ public class Intake extends SubsystemBase {
 
     public enum IntakeState{
         STOW(1, 1),
-        PUSH(100, 100),
-        GRAB(40, 45);
+        PUSH(145, 150),
+        GRAB(55, 60);
         private final double leftPosition;
         private final double rightPosition;
         IntakeState(double leftPosition, double rightPosition) {
