@@ -143,11 +143,8 @@ public class Intake extends SubsystemBase {
                 || mRightColorSensor.blue() >= 200;
 
         if((leftColorBallDetected || rightColorBallDetected)
-<<<<<<< HEAD
-=======
                 && mIntakeState == IntakeState.PUSH
                 && (timer.seconds() > 0.5)
->>>>>>> 1ece0d97d74d3068e1f160d9271b365879a09f7c
                 && !isBallCaught
         ) {
             setIntakePosition(IntakeState.STOW);
