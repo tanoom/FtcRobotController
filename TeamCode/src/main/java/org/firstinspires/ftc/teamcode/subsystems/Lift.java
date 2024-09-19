@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.Range;
 
 public class Lift extends SubsystemBase {
     private final Motor mFrontLeftSlide;
@@ -217,8 +218,11 @@ public class Lift extends SubsystemBase {
         mFrontRightSlide.setRunMode(Motor.RunMode.RawPower);
         mBackRightSlide.setRunMode(Motor.RunMode.RawPower);
 
+        frontPower = Range.clip(frontPower, -1, 1);
+        backPower = Range.clip(backPower, -1, 1);
+
         boolean limitFrontHigh = mFrontLeftSlide.getDistance() >= 4000 || mFrontRightSlide.getDistance() >= 4000;
-        boolean limitBackHigh = mBackLeftSlide.getDistance() >= 3300 || mBackRightSlide.getDistance() >= 3300;
+        boolean limitBackHigh = mBackLeftSlide.getDistance() >= 3500 || mBackRightSlide.getDistance() >= 3500;
         boolean limitFrontLow = mFrontTouchSensor.isPressed();
         boolean limitBackLow = mBackTouchSensor.isPressed();
 

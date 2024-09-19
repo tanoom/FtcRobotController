@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.LiftOpenLoopCommand;
 import org.firstinspires.ftc.teamcode.commands.TankDriveCommand;
+import org.firstinspires.ftc.teamcode.commands.WjLiftOpenCommand;
 import org.firstinspires.ftc.teamcode.common.util.FunctionalButton;
 import org.firstinspires.ftc.teamcode.common.util.SlewRateLimiter;
 import org.firstinspires.ftc.teamcode.subsystems.Door;
@@ -35,7 +36,6 @@ public class FGC2024TeleTest extends CommandOpMode {
     private Intake intake;
     private GamepadEx gamepadEx1, gamepadEx2;
 
-    //private GamepadEx gamepad2;
 
 
     @Override
@@ -64,10 +64,15 @@ public class FGC2024TeleTest extends CommandOpMode {
             () -> gamepadEx1.getRightX(),
             () -> gamepadEx1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5 ));
 
-        lift.setDefaultCommand(new LiftOpenLoopCommand(
-                lift, () -> gamepadEx2.getLeftY(), () -> -gamepadEx2.getRightY(),
-                () -> intake.getUpperMagPressed()
-        ));
+    //        lift.setDefaultCommand(new LiftOpenLoopCommand(
+    //                lift, () -> gamepadEx2.getLeftY(), () -> -gamepadEx2.getRightY(),
+    //                () -> intake.getUpperMagPressed()
+    //        ));
+
+    lift.setDefaultCommand(new WjLiftOpenCommand(
+            lift, () -> gamepadEx2.getLeftY(),
+            () -> -gamepadEx2.getRightY()
+    ));
 
     gamepadEx2
         .getGamepadButton(GamepadKeys.Button.B)

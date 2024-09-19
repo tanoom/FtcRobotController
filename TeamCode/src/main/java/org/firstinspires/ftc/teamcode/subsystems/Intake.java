@@ -123,6 +123,7 @@ public class Intake extends SubsystemBase {
                 setIntakePosition(IntakeState.PUSH);
                 isDriverControlPush = true;
                 break;
+
             case PUSH:
                 setIntakePosition(IntakeState.STOW);
                 isDriverControlPush = false;
@@ -140,7 +141,6 @@ public class Intake extends SubsystemBase {
                 || mRightColorSensor.blue() >= 200;
 
         if((leftColorBallDetected || rightColorBallDetected)
-                && mIntakeState == IntakeState.PUSH
                 && !isBallCaught
                 && !isDriverControlPush
         ) {
@@ -198,7 +198,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void stowArm() {
-        if(!lowerMag.isPressed() && isRised) {
+        if(!lowerMag.isPressed()) {
             mArmLeft.setPosition(-0.6);
             mArmRight.setPosition(-0.6);
         }
