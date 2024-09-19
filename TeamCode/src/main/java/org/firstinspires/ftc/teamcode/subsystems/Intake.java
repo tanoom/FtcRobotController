@@ -26,14 +26,13 @@ public class Intake extends SubsystemBase {
     private final Servo mDoorLeft; //Position
     private final Servo mDoorRight; //Position
 
-    private final PIDFController leftController = new PIDController(0.01, 0, 0);
+    private final PIDFController leftController = new PIDController(0.02, 0, 0);
     private final PIDFController rightController = new PIDController(0.01, 0, 0);
 
     private final ColorSensor mLeftColorSensor;
     private final ColorSensor mRightColorSensor;
 
     private IntakeState mIntakeState = IntakeState.STOW;
-    private boolean isDriverControlPush = true;
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -54,12 +53,16 @@ public class Intake extends SubsystemBase {
 
         mIntakeLeft = new Motor(hardwareMap, "intakeLeft");
         mIntakeRight = new Motor(hardwareMap, "intakeRight");
+
         mRollerLeft = hardwareMap.get(Servo.class,"rollerLeft"); // 0 1 reverse 0 outtake 1 intake
         mRollerRight = hardwareMap.get(Servo.class, "rollerRight"); //0 1 0 outtake 1 intake
+
         mArmLeft = hardwareMap.get(Servo.class, "armLeft"); //0 1 0 down 1 up
         mArmRight = hardwareMap.get(Servo.class, "armRight");//0 1 reverse 0 down 1 up
+
         mDoorLeft = hardwareMap.get(Servo.class, "doorLeft"); //0 0.3 1
         mDoorRight = hardwareMap.get(Servo.class, "doorRight"); //0 0.25 1 reverse
+
         mLeftColorSensor = hardwareMap.get(ColorSensor.class, "colorSensorLeft");
         mRightColorSensor = hardwareMap.get(ColorSensor.class, "colorSensorRight");
 
@@ -121,12 +124,11 @@ public class Intake extends SubsystemBase {
         switch (mIntakeState) {
             case STOW:
                 setIntakePosition(IntakeState.PUSH);
-                isDriverControlPush = true;
+                timer.reset();
                 break;
 
             case PUSH:
                 setIntakePosition(IntakeState.STOW);
-                isDriverControlPush = false;
                 break;
         }
     }
@@ -141,8 +143,12 @@ public class Intake extends SubsystemBase {
                 || mRightColorSensor.blue() >= 200;
 
         if((leftColorBallDetected || rightColorBallDetected)
+<<<<<<< HEAD
+=======
+                && mIntakeState == IntakeState.PUSH
+                && (timer.seconds() > 0.5)
+>>>>>>> 1ece0d97d74d3068e1f160d9271b365879a09f7c
                 && !isBallCaught
-                && !isDriverControlPush
         ) {
             setIntakePosition(IntakeState.STOW);
             isBallCaught = true;
@@ -302,8 +308,8 @@ public class Intake extends SubsystemBase {
         packet.put("Is Upper Trigger", upperMag.isPressed());
         packet.put("Intake State", mIntakeState.toString());
         packet.put("Has ball", isBallCaught);
-        packet.put("Left Setpoint", leftController.getSetPoint());
-        packet.put("Right Setpoint", rightController.getSetPoint());
+        packet.put("Left SetPoint", leftController.getSetPoint());
+        packet.put("Right SetPoint", rightController.getSetPoint());
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
     }
 }
