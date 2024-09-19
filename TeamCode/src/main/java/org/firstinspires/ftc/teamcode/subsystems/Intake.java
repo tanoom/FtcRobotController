@@ -26,14 +26,13 @@ public class Intake extends SubsystemBase {
     private final Servo mDoorLeft; //Position
     private final Servo mDoorRight; //Position
 
-    private final PIDFController leftController = new PIDController(0.015, 0, 0);
+    private final PIDFController leftController = new PIDController(0.02, 0, 0);
     private final PIDFController rightController = new PIDController(0.01, 0, 0);
 
     private final ColorSensor mLeftColorSensor;
     private final ColorSensor mRightColorSensor;
 
     private IntakeState mIntakeState = IntakeState.STOW;
-    private boolean isDriverControlPush = true;
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -125,11 +124,10 @@ public class Intake extends SubsystemBase {
         switch (mIntakeState) {
             case STOW:
                 setIntakePosition(IntakeState.PUSH);
-                isDriverControlPush = true;
+                timer.reset();
                 break;
             case PUSH:
                 setIntakePosition(IntakeState.STOW);
-                isDriverControlPush = false;
                 break;
         }
     }
@@ -145,8 +143,8 @@ public class Intake extends SubsystemBase {
 
         if((leftColorBallDetected || rightColorBallDetected)
                 && mIntakeState == IntakeState.PUSH
+                && (timer.seconds() > 0.5)
                 && !isBallCaught
-                && !isDriverControlPush
         ) {
             setIntakePosition(IntakeState.STOW);
             isBallCaught = true;
@@ -306,8 +304,8 @@ public class Intake extends SubsystemBase {
         packet.put("Is Upper Trigger", upperMag.isPressed());
         packet.put("Intake State", mIntakeState.toString());
         packet.put("Has ball", isBallCaught);
-        packet.put("Left Setpoint", leftController.getSetPoint());
-        packet.put("Right Setpoint", rightController.getSetPoint());
+        packet.put("Left SetPoint", leftController.getSetPoint());
+        packet.put("Right SetPoint", rightController.getSetPoint());
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
     }
 }
