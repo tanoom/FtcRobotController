@@ -32,7 +32,8 @@ public class Intake extends SubsystemBase {
     private final ColorSensor mLeftColorSensor;
     private final ColorSensor mRightColorSensor;
 
-    private IntakeState intakeState = IntakeState.STOW;
+    private IntakeState mIntakeState = IntakeState.STOW;
+    private boolean isDriverControlPush = true;
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -115,9 +116,22 @@ public class Intake extends SubsystemBase {
     }
 
     public void setIntakePosition(IntakeState intakeState) {
-        this.intakeState = intakeState;
+        this.mIntakeState = intakeState;
         leftController.setSetPoint(intakeState.leftPosition);
         rightController.setSetPoint(intakeState.rightPosition);
+    }
+
+    public void switchIntakeState() {
+        switch (mIntakeState) {
+            case STOW:
+                setIntakePosition(IntakeState.PUSH);
+                isDriverControlPush = true;
+                break;
+            case PUSH:
+                setIntakePosition(IntakeState.STOW);
+                isDriverControlPush = false;
+                break;
+        }
     }
 
     public void moveIntakeToPosition() {
@@ -130,10 +144,11 @@ public class Intake extends SubsystemBase {
                 || mRightColorSensor.blue() >= 200;
 
         if((leftColorBallDetected || rightColorBallDetected)
-                && intakeState == IntakeState.PUSH
+                && mIntakeState == IntakeState.PUSH
                 && !isBallCaught
+                && !isDriverControlPush
         ) {
-            setIntakePosition(IntakeState.GRAB);
+            setIntakePosition(IntakeState.STOW);
             isBallCaught = true;
         }
 
@@ -256,7 +271,7 @@ public class Intake extends SubsystemBase {
     public enum IntakeState{
         STOW(1, 1),
         PUSH(145, 150),
-        GRAB(55, 60);
+        GRAB(45, 45);
         private final double leftPosition;
         private final double rightPosition;
         IntakeState(double leftPosition, double rightPosition) {
@@ -289,7 +304,7 @@ public class Intake extends SubsystemBase {
         moveIntakeToPosition();
 
         packet.put("Is Upper Trigger", upperMag.isPressed());
-        packet.put("Intake State", intakeState.toString());
+        packet.put("Intake State", mIntakeState.toString());
         packet.put("Has ball", isBallCaught);
         packet.put("Left Setpoint", leftController.getSetPoint());
         packet.put("Right Setpoint", rightController.getSetPoint());

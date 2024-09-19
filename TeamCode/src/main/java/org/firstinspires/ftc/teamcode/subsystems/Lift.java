@@ -8,12 +8,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class Lift extends SubsystemBase {
-    private Motor mFrontLeftSlide;
-    private Motor mBackLeftSlide;
-    private Motor mFrontRightSlide;
-    private Motor mBackRightSlide;
+    private final Motor mFrontLeftSlide;
+    private final Motor mBackLeftSlide;
+    private final Motor mFrontRightSlide;
+    private final Motor mBackRightSlide;
+
+    private final TouchSensor mFrontTouchSensor;
+    private final TouchSensor mBackTouchSensor;
 
     private LiftState mFrontLiftState = LiftState.IDLE;
     private LiftState mBackLiftState = LiftState.IDLE;
@@ -34,6 +38,9 @@ public class Lift extends SubsystemBase {
         mBackLeftSlide = new Motor(hardwareMap, "backLeftLift", 28, 6000);
         mFrontRightSlide = new Motor(hardwareMap, "frontRightLift", 28, 6000);
         mBackRightSlide = new Motor(hardwareMap, "backRightLift", 28, 6000);
+
+        mFrontTouchSensor = hardwareMap.get(TouchSensor.class, "frontSensor");
+        mBackTouchSensor = hardwareMap.get(TouchSensor.class, "backSensor");
 
         mFrontLeftSlide.setInverted(false);
         mBackLeftSlide.setInverted(false);
@@ -212,8 +219,8 @@ public class Lift extends SubsystemBase {
 
         boolean limitFrontHigh = mFrontLeftSlide.getDistance() >= 4000 || mFrontRightSlide.getDistance() >= 4000;
         boolean limitBackHigh = mBackLeftSlide.getDistance() >= 3300 || mBackRightSlide.getDistance() >= 3300;
-        boolean limitFrontLow = mFrontLeftSlide.getDistance() <= -200 || mFrontRightSlide.getDistance() <= -200;
-        boolean limitBackLow = mBackLeftSlide.getDistance() <= -200 || mBackRightSlide.getDistance() <= -200;
+        boolean limitFrontLow = mFrontTouchSensor.isPressed();
+        boolean limitBackLow = mBackTouchSensor.isPressed();
 
         packet.put("Limit Front High", limitFrontHigh);
         packet.put("Limit Back High", limitBackHigh);
@@ -266,11 +273,20 @@ public class Lift extends SubsystemBase {
     }
 
     public void resetEncoders() {
+        resetFrontEncoders();
+        resetBackEncoders();
+    }
+
+    public void resetFrontEncoders() {
         mFrontLeftSlide.resetEncoder();
         mFrontRightSlide.resetEncoder();
+    }
+
+    public void resetBackEncoders() {
         mBackLeftSlide.resetEncoder();
         mBackRightSlide.resetEncoder();
     }
+
 
     public void setFrontSlidesPower(double frontPower) {
         mFrontLeftSlide.set(frontPower);
@@ -382,10 +398,21 @@ public class Lift extends SubsystemBase {
 //        setFrontLiftsPosPower(mFrontLiftState.power);
 //        setBackLiftsPosPower(mBackLiftState.power);
 
-        packet.put("Direction", releaseDirection);
-        packet.put("Level", releaseLevel);
-        packet.put("Front Height", mFrontLiftState.height);
-        packet.put("Back Height", mBackLiftState.height);
+        if(mFrontTouchSensor.isPressed()) {
+            resetFrontEncoders();
+        }
+
+        if(mBackTouchSensor.isPressed()) {
+            resetBackEncoders();
+        }
+
+//        packet.put("Direction", releaseDirection);
+//        packet.put("Level", releaseLevel);
+//        packet.put("Front Height", mFrontLiftState.height);
+//        packet.put("Back Height", mBackLiftState.height);
+
+        packet.put("Front Pressed", mFrontTouchSensor.isPressed());
+        packet.put("Back Pressed", mBackTouchSensor.isPressed());
 
         packet.put("FrontLeftPos", mFrontLeftSlide.getCurrentPosition());
         packet.put("FrontRightPos", mFrontRightSlide.getCurrentPosition());
